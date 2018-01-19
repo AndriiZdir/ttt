@@ -29,14 +29,21 @@ namespace TicTacToe.API
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
+            services.AddIdentity<ApplicationUser, IdentityRole>(o => 
+            {
+                o.Password.RequireNonAlphanumeric = false;
+                o.Password.RequireUppercase = false;
+                o.Password.RequiredUniqueChars = 0;
+                o.Password.RequireDigit = false;
+                o.Password.RequiredLength = 5;
+            })
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
 
-            services.AddMvc();
+            services.AddMvc();            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -59,6 +66,10 @@ namespace TicTacToe.API
 
             app.UseMvc(routes =>
             {
+                routes.MapRoute(name: "areaRoute",
+                    template: "{area:exists}/{controller}/{action}/{id?}",
+                    defaults: new { controller = "Home", action = "Index" });
+
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
