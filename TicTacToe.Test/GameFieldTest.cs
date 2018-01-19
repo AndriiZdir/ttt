@@ -9,7 +9,7 @@ namespace TicTacToe.Test
     public class GameFieldTest
     {
         [TestMethod]
-        public void GameFieldId()
+        public void CheckGameFieldIdNotEmpty()
         {
             var gm = new GameField();
 
@@ -17,7 +17,7 @@ namespace TicTacToe.Test
         }
 
         [TestMethod]
-        public void BoundsIncrease()
+        public void CheckBoundsIncrease()
         {
             var gm = new GameField();
 

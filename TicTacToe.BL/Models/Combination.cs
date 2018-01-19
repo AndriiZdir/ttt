@@ -32,8 +32,8 @@ namespace TicTacToe.BL.Models
             if (dX == 0 && (dY == 1 || dY == -1)) { return CombinationDirection.Vertical; }
             if (dY == 0 && (dX == 1 || dX == -1)) { return CombinationDirection.Horizontal; }
 
-            if (dX == dY) { return CombinationDirection.Horizontal; }
-            if (dX == -dY) { return CombinationDirection.Horizontal; }
+            if (dX == dY) { return CombinationDirection.UpDownDiagonal; }
+            if (dX == -dY) { return CombinationDirection.DownUpDiagonal; }
 
             return CombinationDirection.Undefined;
         }
