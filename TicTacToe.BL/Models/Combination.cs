@@ -24,16 +24,27 @@ namespace TicTacToe.BL.Models
 
         public List<SignPoint> Points { get; private set; }
 
+        public bool IsSuitableCombinationFor(int x, int y)
+        {
+            if (State != CombinationState.Open && State != CombinationState.Half) { return false; }
+            if (!Bound.Contains(x, y)) { return false; }
+
+            return true;
+        }
+
         public static CombinationDirection GetCombinationDirection(int x1, int y1, int x2, int y2)
         {
             var dX = x2 - x1;
             var dY = y2 - y1;
 
-            if (dX == 0 && (dY == 1 || dY == -1)) { return CombinationDirection.Vertical; }
-            if (dY == 0 && (dX == 1 || dX == -1)) { return CombinationDirection.Horizontal; }
+            if (Math.Abs(dX) <= 1 && Math.Abs(dY) <= 1 && !(dX == 0 && dY == 0))
+            {
+                if (dX == 0 && (dY == 1 || dY == -1)) { return CombinationDirection.Vertical; }
+                if (dY == 0 && (dX == 1 || dX == -1)) { return CombinationDirection.Horizontal; }
 
-            if (dX == dY) { return CombinationDirection.UpDownDiagonal; }
-            if (dX == -dY) { return CombinationDirection.DownUpDiagonal; }
+                if (dX == dY) { return CombinationDirection.UpDownDiagonal; }
+                if (dX == -dY) { return CombinationDirection.DownUpDiagonal; }
+            }
 
             return CombinationDirection.Undefined;
         }

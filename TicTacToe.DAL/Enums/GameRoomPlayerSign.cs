@@ -9,6 +9,8 @@ namespace TicTacToe.DAL.Enums
         Empty,
         Cross,
         Zero,
-        Poops
+        Poops,
+
+        Mine = 0b11111111
     }
 }
