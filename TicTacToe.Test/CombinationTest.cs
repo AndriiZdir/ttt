@@ -60,13 +60,15 @@ namespace TicTacToe.Test
 
             Assert.AreEqual(CombinationDirection.Undefined, direction);
 
-            direction = Combination.GetCombinationDirection(3, 3, 3, 3);
-
-            Assert.AreEqual(CombinationDirection.Undefined, direction);
-
             direction = Combination.GetCombinationDirection(1, 1, -1, -1);
 
             Assert.AreEqual(CombinationDirection.Undefined, direction);
+
+
+
+            direction = Combination.GetCombinationDirection(3, 3, 3, 3);
+
+            Assert.AreEqual(CombinationDirection.SamePoint, direction);
         }
 
     }

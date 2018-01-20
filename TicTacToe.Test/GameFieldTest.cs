@@ -54,7 +54,6 @@ namespace TicTacToe.Test
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => { gm.SetPointSign(-21, -20, DAL.Enums.GameRoomPlayerSign.Poops); });
         }
 
-
         [TestMethod]
         public void CheckMaxBoundsViolation()
         {

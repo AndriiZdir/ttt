@@ -24,10 +24,23 @@ namespace TicTacToe.BL.Models
 
         public List<SignPoint> Points { get; private set; }
 
-        public bool IsSuitableCombinationFor(int x, int y)
+        public void AddPoint(SignPoint point)
+        {
+            if (Points.Any(x => x == point)) { throw new ArgumentException("This point is already in this combination", nameof(point)); }
+
+            Points.Add(point);
+        }
+
+        /// <summary>
+        /// Check if point is suitable for adding to this combination.
+        /// </summary>
+        /// <param name="x">x coord</param>
+        /// <param name="y">y coord</param>
+        /// <returns>Is suitable</returns>
+        public bool IsSuitableFor(int x, int y)
         {
             if (State != CombinationState.Open && State != CombinationState.Half) { return false; }
-            if (!Bound.Contains(x, y)) { return false; }
+            
 
             return true;
         }
@@ -37,10 +50,12 @@ namespace TicTacToe.BL.Models
             var dX = x2 - x1;
             var dY = y2 - y1;
 
-            if (Math.Abs(dX) <= 1 && Math.Abs(dY) <= 1 && !(dX == 0 && dY == 0))
+            if(dX == 0 && dY == 0) { return CombinationDirection.SamePoint; }   //exclude current point
+
+            if (Math.Abs(dX) <= 1 && Math.Abs(dY) <= 1) //only neghbour points                
             {
-                if (dX == 0 && (dY == 1 || dY == -1)) { return CombinationDirection.Vertical; }
-                if (dY == 0 && (dX == 1 || dX == -1)) { return CombinationDirection.Horizontal; }
+                if (dX == 0) { return CombinationDirection.Vertical; }
+                if (dY == 0) { return CombinationDirection.Horizontal; }
 
                 if (dX == dY) { return CombinationDirection.UpDownDiagonal; }
                 if (dX == -dY) { return CombinationDirection.DownUpDiagonal; }
@@ -64,6 +79,8 @@ namespace TicTacToe.BL.Models
         Vertical,
         Horizontal,
         UpDownDiagonal,
-        DownUpDiagonal        
+        DownUpDiagonal,
+        
+        SamePoint = 0b11111111
     }
 }
