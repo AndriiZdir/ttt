@@ -8,6 +8,11 @@ namespace TicTacToe.Test
     [TestClass]
     public class GameFieldTest : GameField
     {
+        public GameFieldTest() : base(200)
+        {
+
+        }
+
         [TestMethod]
         public void CheckGameFieldIdNotEmpty()
         {
@@ -23,11 +28,11 @@ namespace TicTacToe.Test
 
             gm.SetPointSign(2, 2, DAL.Enums.GameRoomPlayerSign.Cross);
 
-            var point = gm.GetSignPointByCoords(2, 2);
+            var point = gm.GetPointByCoords(2, 2);
 
             Assert.IsFalse(point.IsEmpty);
 
-            point = gm.GetSignPointByCoords(1, 2);
+            point = gm.GetPointByCoords(1, 2);
 
             Assert.IsTrue(point.IsEmpty);
 
@@ -106,16 +111,18 @@ namespace TicTacToe.Test
             gm.SetPointSign(-1, 2, DAL.Enums.GameRoomPlayerSign.Zero);
 
             
-            var testPoint = gm.GetSignPointByCoords(0, 0);
+            var testPoint = gm.GetPointByCoords(0, 0);
 
             int i = 0;
 
             foreach (var nPoint in gm.GetNeighbourPoints(testPoint, true))
             {
-                Assert.AreEqual(testPoint.Sign, nPoint.Sign);
+                Assert.AreEqual(testPoint.PointType, nPoint.PointType);
 
-                var direction = Combination.GetCombinationDirection(nPoint.Position.X, nPoint.Position.Y, testPoint.Position.X, testPoint.Position.Y);
+                var direction = testPoint ^ nPoint;
+                var reverseDirection = nPoint ^ testPoint;
 
+                Assert.AreEqual(direction, reverseDirection);
                 Assert.AreNotEqual(direction, CombinationDirection.Undefined);
 
                 i++;
@@ -127,7 +134,7 @@ namespace TicTacToe.Test
 
             foreach (var nPoint in gm.GetNeighbourPoints(testPoint, false))
             {
-                var direction = Combination.GetCombinationDirection(nPoint.Position.X, nPoint.Position.Y, testPoint.Position.X, testPoint.Position.Y);
+                var direction = testPoint.GetDirectionWith(nPoint);
 
                 Assert.AreNotEqual(direction, CombinationDirection.Undefined);
 
@@ -135,6 +142,42 @@ namespace TicTacToe.Test
             }
 
             Assert.AreEqual(6, i);
+        }
+
+        [TestMethod]
+        public void TestCombinations()
+        {
+            var gm = this;
+
+            /*            
+             *            
+             *     XX       
+             *    XX      
+             *             
+             *              
+             */
+
+
+            gm.SetPointSign(0, 0, DAL.Enums.GameRoomPlayerSign.Cross);
+            gm.SetPointSign(1, 1, DAL.Enums.GameRoomPlayerSign.Cross);
+
+            Assert.AreEqual(1, gm.Combinations.Count);
+
+            gm.SetPointSign(0, 1, DAL.Enums.GameRoomPlayerSign.Cross);
+
+            Assert.AreEqual(3, gm.Combinations.Count);
+
+            gm.SetPointSign(-1, 0, DAL.Enums.GameRoomPlayerSign.Cross);
+
+            Assert.AreEqual(5, gm.Combinations.Count);
+
+            //gm.SetPointSign(1, 0, DAL.Enums.GameRoomPlayerSign.Cross);
+
+            ////gm.SetPointSign(1, 0, DAL.Enums.GameRoomPlayerSign.Zero);
+            ////gm.SetPointSign(1, -1, DAL.Enums.GameRoomPlayerSign.Zero);            
+            ////gm.SetPointSign(-1, 1, DAL.Enums.GameRoomPlayerSign.Zero);
+
+            //Assert.AreEqual(7, gm.Combinations.Count);
         }
     }
 }

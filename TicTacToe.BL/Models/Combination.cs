@@ -8,13 +8,18 @@ namespace TicTacToe.BL.Models
 {
     public class Combination
     {
-        public Combination()
+        private int _id;
+
+        public Combination(int id, CombinationDirection direction)
         {
+            _id = id;
             Points = new List<SignPoint>();
             Bound = Rectangle.Empty;
             State = CombinationState.Open;
-            Direction = CombinationDirection.Undefined;
+            Direction = direction;            
         }
+
+        public int Id { get { return _id; } }
 
         public CombinationState State { get; set; }
 
@@ -37,32 +42,21 @@ namespace TicTacToe.BL.Models
         /// <param name="x">x coord</param>
         /// <param name="y">y coord</param>
         /// <returns>Is suitable</returns>
-        public bool IsSuitableFor(int x, int y)
+        public bool IsSuitableFor(SignPoint point)
         {
             if (State != CombinationState.Open && State != CombinationState.Half) { return false; }
-            
 
-            return true;
-        }
-
-        public static CombinationDirection GetCombinationDirection(int x1, int y1, int x2, int y2)
-        {
-            var dX = x2 - x1;
-            var dY = y2 - y1;
-
-            if(dX == 0 && dY == 0) { return CombinationDirection.SamePoint; }   //exclude current point
-
-            if (Math.Abs(dX) <= 1 && Math.Abs(dY) <= 1) //only neghbour points                
+            foreach(var p in Points)
             {
-                if (dX == 0) { return CombinationDirection.Vertical; }
-                if (dY == 0) { return CombinationDirection.Horizontal; }
+                var direction = point.GetDirectionWith(p);
 
-                if (dX == dY) { return CombinationDirection.UpDownDiagonal; }
-                if (dX == -dY) { return CombinationDirection.DownUpDiagonal; }
-            }
+                if (Direction == direction) { return true; }
+            }            
 
-            return CombinationDirection.Undefined;
+            return false;
         }
+
+        
     }
 
     public enum CombinationState : byte

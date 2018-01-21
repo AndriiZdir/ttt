@@ -9,67 +9,67 @@ namespace TicTacToe.Test
     [TestClass]
     public class CombinationTest
     {
-        [TestMethod]
-        public void CheckCombinationDirectionDetection()
-        {
-            var direction = Combination.GetCombinationDirection(0, 0, 0, 1);
+        //[TestMethod]
+        //public void CheckCombinationDirectionDetection()
+        //{
+        //    var direction = Combination.GetCombinationDirection(0, 0, 0, 1);
 
-            Assert.AreEqual(CombinationDirection.Vertical, direction);
+        //    Assert.AreEqual(CombinationDirection.Vertical, direction);
 
-            direction = Combination.GetCombinationDirection(0, 1, 0, 2);
+        //    direction = Combination.GetCombinationDirection(0, 1, 0, 2);
 
-            Assert.AreEqual(CombinationDirection.Vertical, direction);
-
-
-
-            direction = Combination.GetCombinationDirection(0, 0, 1, 0);
-
-            Assert.AreEqual(CombinationDirection.Horizontal, direction);
-
-            direction = Combination.GetCombinationDirection(-3, 0, -2, 0);
-
-            Assert.AreEqual(CombinationDirection.Horizontal, direction);
+        //    Assert.AreEqual(CombinationDirection.Vertical, direction);
 
 
 
-            direction = Combination.GetCombinationDirection(0, 0, 1, 1);
+        //    direction = Combination.GetCombinationDirection(0, 0, 1, 0);
 
-            Assert.AreEqual(CombinationDirection.UpDownDiagonal, direction);
+        //    Assert.AreEqual(CombinationDirection.Horizontal, direction);
 
-            direction = Combination.GetCombinationDirection(1, 1, 0, 0);
+        //    direction = Combination.GetCombinationDirection(-3, 0, -2, 0);
 
-            Assert.AreEqual(CombinationDirection.UpDownDiagonal, direction);
-
-
-
-            direction = Combination.GetCombinationDirection(2, 2, 1, 3);
-
-            Assert.AreEqual(CombinationDirection.DownUpDiagonal, direction);
-
-            direction = Combination.GetCombinationDirection(-30, -30, -29, -31);
-
-            Assert.AreEqual(CombinationDirection.DownUpDiagonal, direction);
+        //    Assert.AreEqual(CombinationDirection.Horizontal, direction);
 
 
 
-            direction = Combination.GetCombinationDirection(0, 0, 1, 2);
+        //    direction = Combination.GetCombinationDirection(0, 0, 1, 1);
 
-            Assert.AreEqual(CombinationDirection.Undefined, direction);
+        //    Assert.AreEqual(CombinationDirection.UpDownDiagonal, direction);
 
-            direction = Combination.GetCombinationDirection(0, 0, 2, 2);
+        //    direction = Combination.GetCombinationDirection(1, 1, 0, 0);
 
-            Assert.AreEqual(CombinationDirection.Undefined, direction);
-
-            direction = Combination.GetCombinationDirection(1, 1, -1, -1);
-
-            Assert.AreEqual(CombinationDirection.Undefined, direction);
+        //    Assert.AreEqual(CombinationDirection.UpDownDiagonal, direction);
 
 
 
-            direction = Combination.GetCombinationDirection(3, 3, 3, 3);
+        //    direction = Combination.GetCombinationDirection(2, 2, 1, 3);
 
-            Assert.AreEqual(CombinationDirection.SamePoint, direction);
-        }
+        //    Assert.AreEqual(CombinationDirection.DownUpDiagonal, direction);
+
+        //    direction = Combination.GetCombinationDirection(-30, -30, -29, -31);
+
+        //    Assert.AreEqual(CombinationDirection.DownUpDiagonal, direction);
+
+
+
+        //    direction = Combination.GetCombinationDirection(0, 0, 1, 2);
+
+        //    Assert.AreEqual(CombinationDirection.Undefined, direction);
+
+        //    direction = Combination.GetCombinationDirection(0, 0, 2, 2);
+
+        //    Assert.AreEqual(CombinationDirection.Undefined, direction);
+
+        //    direction = Combination.GetCombinationDirection(1, 1, -1, -1);
+
+        //    Assert.AreEqual(CombinationDirection.Undefined, direction);
+
+
+
+        //    direction = Combination.GetCombinationDirection(3, 3, 3, 3);
+
+        //    Assert.AreEqual(CombinationDirection.SamePoint, direction);
+        //}
 
     }
 }
