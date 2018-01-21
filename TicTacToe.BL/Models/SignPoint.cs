@@ -11,12 +11,14 @@ namespace TicTacToe.BL.Models
         private Point _position;
         private Guid _playerId;
         private SignPointType _pointType;
+        private Dictionary<CombinationDirection, Combination> _pointCombinations;
 
         public SignPoint(Guid playerId, Point position, SignPointType pointType)
         {
             _position = position;
             _playerId = playerId;
-            _pointType = pointType;            
+            _pointType = pointType;
+            _pointCombinations = new Dictionary<CombinationDirection, Combination>();
         }
 
         public SignPoint(Guid playerId, int x, int y, SignPointType pointType) : this(playerId, new Point(x, y), pointType) { }
@@ -30,9 +32,7 @@ namespace TicTacToe.BL.Models
 
 
         public bool IsReadOnly => (_pointType == SignPointType.Sign || _pointType == SignPointType.MineUsed);
-
-        //public bool IsEmpty => (PointType == SignPointType.Empty);
-
+        
 
         public void ExplodeMine(Guid detonatedBy)
         {
@@ -41,7 +41,33 @@ namespace TicTacToe.BL.Models
                 _pointType = SignPointType.MineUsed;
                 _playerId = detonatedBy;
             }
+            else
+            {
+                throw new InvalidOperationException("There is no mine at this point.");
+            }
         }
+
+
+        public void AddToCombination(Combination combination)
+        {
+            if (_pointCombinations.ContainsKey(combination.Direction))
+            {
+                _pointCombinations[combination.Direction].AddPoint(this);
+            }
+            else
+            {
+                combination.AddPoint(this);
+                _pointCombinations[combination.Direction] = combination;
+            }
+        }
+
+        public Combination GetPointCombinationForDirection(CombinationDirection direction)
+        {
+            if (!_pointCombinations.ContainsKey(direction)) { return null; }
+
+            return _pointCombinations[direction];
+        }
+
 
         public override bool Equals(object obj)
         {

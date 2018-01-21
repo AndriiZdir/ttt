@@ -70,6 +70,7 @@ namespace TicTacToe.BL.Models
     public enum CombinationDirection : byte
     {
         Undefined,
+
         Vertical,
         Horizontal,
         UpDownDiagonal,
