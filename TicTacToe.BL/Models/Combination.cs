@@ -34,29 +34,12 @@ namespace TicTacToe.BL.Models
             if (Points.Any(x => x == point)) { throw new ArgumentException("This point is already in this combination", nameof(point)); }
 
             Points.Add(point);
+
+            if (Points.Count > 5) { State = CombinationState.Completed; }
         }
 
-        /// <summary>
-        /// Check if point is suitable for adding to this combination.
-        /// </summary>
-        /// <param name="x">x coord</param>
-        /// <param name="y">y coord</param>
-        /// <returns>Is suitable</returns>
-        public bool IsSuitableFor(SignPoint point)
-        {
-            if (State != CombinationState.Open && State != CombinationState.Half) { return false; }
+        public bool IsReadOnly => (State == CombinationState.Completed || State == CombinationState.Closed);
 
-            foreach(var p in Points)
-            {
-                var direction = point ^ p;
-
-                if (Direction == direction) { return true; }
-            }            
-
-            return false;
-        }
-
-        
     }
 
     public enum CombinationState : byte

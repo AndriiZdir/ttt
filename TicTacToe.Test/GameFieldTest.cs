@@ -113,25 +113,26 @@ namespace TicTacToe.Test
 
         }
 
-        //[TestMethod]
-        //public void CheckBoundsIncrease()
-        //{
+        [TestMethod]
+        public void CheckBoundsIncrease()
+        {
+            gm.AddPlayerToField(Guid.NewGuid());
+            gm.AddPlayerToField(Guid.NewGuid());
 
+            gm.SetPointSign(0, 0);
+            Assert.AreEqual(Rectangle.FromLTRB(0, 0, 0, 0), gm.Bounds);
 
-        //    gm.SetPointSign(0, 0, DAL.Enums.GameRoomPlayerSign.Cross);
-        //    Assert.AreEqual(Rectangle.FromLTRB(0, 0, 0, 0), gm.Bounds);
+            gm.SetPointSign(2, 9);
+            Assert.AreEqual(Rectangle.FromLTRB(0, 0, 2, 9), gm.Bounds);
 
-        //    gm.SetPointSign(2, 9, DAL.Enums.GameRoomPlayerSign.Cross);
-        //    Assert.AreEqual(Rectangle.FromLTRB(0, 0, 2, 9), gm.Bounds);
+            gm.SetPointSign(-2, -2);
+            Assert.AreEqual(Rectangle.FromLTRB(-2, -2, 2, 9), gm.Bounds);
 
-        //    gm.SetPointSign(-2, -2, DAL.Enums.GameRoomPlayerSign.Cross);
-        //    Assert.AreEqual(Rectangle.FromLTRB(-2, -2, 2, 9), gm.Bounds);
+            gm.SetPointSign(-10, -10);
+            Assert.AreEqual(Rectangle.FromLTRB(-10, -10, 2, 9), gm.Bounds);
 
-        //    gm.SetPointSign(-10, -10, DAL.Enums.GameRoomPlayerSign.Cross);
-        //    Assert.AreEqual(Rectangle.FromLTRB(-10, -10, 2, 9), gm.Bounds);
-
-        //    Assert.ThrowsException<ArgumentOutOfRangeException>(() => { gm.SetPointSign(-21, -20, DAL.Enums.GameRoomPlayerSign.Poops); });
-        //}
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => { gm.SetPointSign(-21, -20); });
+        }
 
         //[TestMethod]
         //public void CheckMaxBoundsViolation()
@@ -216,41 +217,113 @@ namespace TicTacToe.Test
             Assert.AreEqual(6, i);
         }
 
-        //[TestMethod]
-        //public void TestCombinations()
-        //{
+        [TestMethod]
+        public void TestCombinations()
+        {
+
+            var pl1 = gm.AddPlayerToField(Guid.NewGuid());
+            _currentTurnPlayer = pl1;
+            _gameState = GameFieldState.Ready;
+            
+            Assert.AreEqual(GameFieldState.Ready, gm.State);
+
+            /*            
+             *            
+             *     XX       
+             *    XXXXX     
+             *             
+             *              
+             */
 
 
-        //    /*            
-        //     *            
-        //     *     XX       
-        //     *    XX      
-        //     *             
-        //     *              
-        //     */
+            var point = gm.SetPointSign(0, 0);
+            point = gm.SetPointSign(1, 1);
+
+            Assert.AreEqual(1, gm.Combinations.Count);
+
+            point = gm.SetPointSign(0, 1);
+
+            Assert.AreEqual(3, gm.Combinations.Count);
+
+            point = gm.SetPointSign(-1, 0);
+
+            Assert.AreEqual(5, gm.Combinations.Count);
+
+            point = gm.SetPointSign(3, 0);
+
+            Assert.AreEqual(5, gm.Combinations.Count);
+
+            point = gm.SetPointSign(2, 0);
+
+            Assert.AreEqual(7, gm.Combinations.Count);
+
+            point = gm.SetPointSign(1, 0);
+
+            Assert.AreEqual(8, gm.Combinations.Count);
 
 
-        //    gm.SetPointSign(0, 0, DAL.Enums.GameRoomPlayerSign.Cross);
-        //    gm.SetPointSign(1, 1, DAL.Enums.GameRoomPlayerSign.Cross);
+            //Combination merging test
 
-        //    Assert.AreEqual(1, gm.Combinations.Count);
+            point = gm.SetPointSign(-1, 10);
+            point = gm.SetPointSign(0, 10);
 
-        //    gm.SetPointSign(0, 1, DAL.Enums.GameRoomPlayerSign.Cross);
+            Assert.AreEqual(9, gm.Combinations.Count);
 
-        //    Assert.AreEqual(3, gm.Combinations.Count);
+            point = gm.SetPointSign(3, 10);
 
-        //    gm.SetPointSign(-1, 0, DAL.Enums.GameRoomPlayerSign.Cross);
+            Assert.AreEqual(9, gm.Combinations.Count);
 
-        //    Assert.AreEqual(5, gm.Combinations.Count);
+            point = gm.SetPointSign(2, 10);
 
-        //    //gm.SetPointSign(1, 0, DAL.Enums.GameRoomPlayerSign.Cross);
+            Assert.AreEqual(10, gm.Combinations.Count);
 
-        //    ////gm.SetPointSign(1, 0, DAL.Enums.GameRoomPlayerSign.Zero);
-        //    ////gm.SetPointSign(1, -1, DAL.Enums.GameRoomPlayerSign.Zero);            
-        //    ////gm.SetPointSign(-1, 1, DAL.Enums.GameRoomPlayerSign.Zero);
+            point = gm.SetPointSign(1, 10);
 
-        //    //Assert.AreEqual(7, gm.Combinations.Count);
-        //}
+            Assert.AreEqual(9, gm.Combinations.Count);
+
+
+            //9 point combination
+
+            point = gm.SetPointSign(-1, 15);
+            point = gm.SetPointSign(0, 15);
+            point = gm.SetPointSign(1, 15);
+            point = gm.SetPointSign(2, 15);
+
+            Assert.AreEqual(10, gm.Combinations.Count);
+
+            var ninePointCombination = point.GetPointCombinationForDirection(CombinationDirection.Horizontal);
+            Assert.AreEqual(4, ninePointCombination.Points.Count);
+            Assert.AreEqual(CombinationState.Open, ninePointCombination.State);
+
+            point = gm.SetPointSign(4, 15);
+            point = gm.SetPointSign(5, 15);
+            point = gm.SetPointSign(6, 15);
+            point = gm.SetPointSign(7, 15);
+
+            Assert.AreEqual(11, gm.Combinations.Count);
+
+            ninePointCombination = point.GetPointCombinationForDirection(CombinationDirection.Horizontal);
+            Assert.AreEqual(4, ninePointCombination.Points.Count);
+            Assert.AreEqual(CombinationState.Open, ninePointCombination.State);
+
+            point = gm.SetPointSign(3, 15);
+
+            Assert.AreEqual(10, gm.Combinations.Count);
+
+            ninePointCombination = point.GetPointCombinationForDirection(CombinationDirection.Horizontal);
+
+            Assert.AreEqual(9, ninePointCombination.Points.Count);
+            Assert.AreEqual(CombinationState.Completed, ninePointCombination.State);
+
+            point = gm.SetPointSign(9, 15);
+            point = gm.SetPointSign(10, 15);
+
+            Assert.AreEqual(11, gm.Combinations.Count);
+
+            point = gm.SetPointSign(8, 15);
+
+            Assert.AreEqual(11, gm.Combinations.Count);
+        }
     }
 }
 

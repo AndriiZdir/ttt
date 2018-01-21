@@ -23,10 +23,10 @@ namespace TicTacToe.BL.Models
         private readonly Rectangle _maxGameFieldBounds;
         private List<Combination> _gameCombinations;
 
-        private GameFieldState _gameState;
+        protected GameFieldState _gameState;
 
         private List<Player> _gamePlayers;
-        private Player _currentTurnPlayer;        
+        protected Player _currentTurnPlayer;        
         
         public GameField(int fieldSize)
         {
@@ -92,11 +92,15 @@ namespace TicTacToe.BL.Models
                 {
                     _gameState = GameFieldState.Started;
                 }
+
+                UpdateNextTurnPlayer();
             }
             else if (point != null && point.PointType == SignPointType.MineNew)
             {
                 point.ExplodeMine(_currentTurnPlayer.Id);
                 _currentTurnPlayer.SkipNextTurn = true;
+
+                UpdateNextTurnPlayer();
             }
             else
             {
@@ -105,45 +109,57 @@ namespace TicTacToe.BL.Models
 
             UpdateFieldBounds(point.Position);
 
-            //List<SignPoint> neighbourPoints = GetNeighbourPoints(point).ToList();
+            var neighbourPoints = GetNeighbourPoints(point);
 
-            //foreach (var neighbourPoint in neighbourPoints)
-            //{
-            //    var direction = point.GetDirectionWith(neighbourPoint);
+            foreach (var neighbourPoint in neighbourPoints)
+            {
+                var direction = neighbourPoint ^ point;
+                var pCombination = point.GetPointCombinationForDirection(direction);
+                var nCombination = neighbourPoint.GetPointCombinationForDirection(direction);
 
-            //    var combinations = GetCombinationsWithPoint(neighbourPoint).ToList();
+                if (nCombination != null)
+                {
+                    if (pCombination == null)
+                    {
+                        if (!nCombination.IsReadOnly)
+                        {
+                            point.AddToCombination(nCombination);
+                        }
+                    }
+                    else
+                    {
+                        //TODO: Combination merge
 
-            //    if (combinations.Count > 0)
-            //    {
-            //        foreach (var combination in combinations)
-            //        {
-            //            if (combination.Direction != direction)
-            //            {
-            //                var newCombination = new Combination(direction);
+                        foreach(var pcPoint in pCombination.Points)
+                        {
+                            pcPoint.AddToCombination(nCombination);
 
-            //                newCombination.AddPoint(point);
-            //                newCombination.AddPoint(neighbourPoint);
+                            pCombination.State = CombinationState.Closed;
+                            _gameCombinations.Remove(pCombination);
+                        }
+                    }
+                }
+                else
+                {
+                    if (pCombination != null)
+                    {
+                        if (!pCombination.IsReadOnly)
+                        {
+                            neighbourPoint.AddToCombination(pCombination);
+                        }                        
+                    }
+                    else
+                    {
+                        Combination newCombination = new Combination(0, direction);
 
-            //                _gameCombinations.Add(newCombination);
-            //            }
-            //            else
-            //            {
-            //                combination.AddPoint(point);
-            //            }
-            //        }
-            //    }
-            //    else
-            //    {
-            //        var combination = new Combination(direction);
+                        _gameCombinations.Add(newCombination);
 
-            //        combination.AddPoint(point);
-            //        combination.AddPoint(neighbourPoint);
+                        point.AddToCombination(newCombination);
+                        neighbourPoint.AddToCombination(newCombination);
+                    }
+                }
+            }
 
-            //        _gameCombinations.Add(combination);
-            //    }
-            //}
-
-            UpdateNextTurnPlayer();
 
             return point;
         }
@@ -187,13 +203,13 @@ namespace TicTacToe.BL.Models
             {
                 var player = _gamePlayers[_nextTurnPlayerIndex];
 
-                if (!player.SkipNextTurn)
-                {
-                    next = player;
-                }                
-                else
+                if (player.SkipNextTurn)
                 {
                     player.SkipNextTurn = false;
+                }
+                else
+                {
+                    next = player;
                 }
 
                 _nextTurnPlayerIndex++;
@@ -253,11 +269,6 @@ namespace TicTacToe.BL.Models
             }
         }
 
-        protected void GetSuitableCombination(SignPoint point1, SignPoint point2)
-        {
-
-        }
-
         protected IEnumerable<SignPoint> GetNeighbourPoints(SignPoint point, bool onlySameSign = true)
         {
             int x = point.Position.X,
@@ -278,18 +289,6 @@ namespace TicTacToe.BL.Models
                 }
             }
             
-        }
-
-        protected IEnumerable<Combination> GetCombinationsWithPoint(SignPoint point)
-        {
-            foreach(var gameCombination in _gameCombinations)
-            {
-                if (gameCombination.Points.Contains(point))
-                {
-                    yield return gameCombination;
-                    continue;
-                }
-            }
         }
 
         #endregion

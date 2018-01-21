@@ -50,15 +50,8 @@ namespace TicTacToe.BL.Models
 
         public void AddToCombination(Combination combination)
         {
-            if (_pointCombinations.ContainsKey(combination.Direction))
-            {
-                _pointCombinations[combination.Direction].AddPoint(this);
-            }
-            else
-            {
-                combination.AddPoint(this);
-                _pointCombinations[combination.Direction] = combination;
-            }
+            combination.AddPoint(this);
+            _pointCombinations[combination.Direction] = combination;
         }
 
         public Combination GetPointCombinationForDirection(CombinationDirection direction)
