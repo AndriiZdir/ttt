@@ -78,7 +78,10 @@ namespace TicTacToe.BL.Models
 
             var c1 = (SignPoint)obj;
 
-            return c1._position.Equals(this._position) && c1.PointType == this.PointType;
+            return
+                c1._playerId == _playerId
+                && c1._position == _position
+                && c1._pointType == _pointType;
         }
 
         public override int GetHashCode()
@@ -95,9 +98,18 @@ namespace TicTacToe.BL.Models
         }
 
         public static bool operator ==(SignPoint c1, SignPoint c2)
-        {
-            return c1._playerId == c2._playerId 
-                && c1._position == c2._position 
+        { 
+            if (c1 is null && c2 is null)
+            {
+                return true;
+            }
+            else if (c1 is null || c2 is null)
+            {
+                return false;
+            }
+
+            return c1._playerId == c2._playerId
+                && c1._position == c2._position
                 && c1._pointType == c2._pointType;
         }
 

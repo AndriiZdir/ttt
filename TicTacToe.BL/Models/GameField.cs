@@ -39,11 +39,14 @@ namespace TicTacToe.BL.Models
             _gameBounds = Rectangle.Empty;
             _maxGameFieldBounds = Rectangle.FromLTRB(2 - field_point_tansform_x, 2 - field_point_tansform_y, field_point_tansform_x - 2, field_point_tansform_y - 2);
             _gameCombinations = new List<Combination>();
-            _gameState = GameFieldState.New;
+            _gamePlayers = new List<Player>();
             _currentTurnPlayer = null;
+            _gameState = GameFieldState.New;            
         }
 
         public Guid GameId { get { return _gameId; } }
+
+        public GameFieldState State { get { return _gameState; } }
 
         public Rectangle Bounds { get { return _gameBounds; } }
 
@@ -51,34 +54,49 @@ namespace TicTacToe.BL.Models
 
         public List<Player> Players { get { return _gamePlayers; } }
 
-        public void AddPlayerToField(Guid playerId)
+        public Player CurrentTurnPlayer { get { return _currentTurnPlayer; } }
+
+        public Player AddPlayerToField(Guid playerId)
         {
             if (_gameState != GameFieldState.New && _gameState != GameFieldState.Ready) { throw new Exception("Game already started"); }
             if (_gamePlayers.Count >= MAX_PLAYERS) { throw new Exception("Maximum players count is " + MAX_PLAYERS); }
 
-            _gamePlayers.Add(new Player(playerId));
+            var player = new Player(playerId);
+            _gamePlayers.Add(player);
 
             if (_gamePlayers.Count >= 2 && _currentTurnPlayer == null)
             {
                 UpdateNextTurnPlayer();
                 _gameState = GameFieldState.Ready;
             }
+
+            return player;
         }
 
-        public void SetPointSign(int x, int y)
+        public SignPoint SetPointSign(int x, int y)
         {
+            if (_gameState != GameFieldState.Ready && _gameState != GameFieldState.Started)
+            {
+                throw new InvalidOperationException("Game is not going.");
+            }
+
             CheckBoundsOutOfRange(x, y);
 
             var point = GetPointByCoords(x, y);
 
-            if (point != null && point.PointType == SignPointType.MineNew)
+            if (point == null)
+            {
+                point = SetPointByCoords(x, y, _currentTurnPlayer, SignPointType.Sign);
+
+                if (_gameState == GameFieldState.Ready)
+                {
+                    _gameState = GameFieldState.Started;
+                }
+            }
+            else if (point != null && point.PointType == SignPointType.MineNew)
             {
                 point.ExplodeMine(_currentTurnPlayer.Id);
                 _currentTurnPlayer.SkipNextTurn = true;
-            }
-            else if (point == null || point.PointType == SignPointType.Empty)
-            {
-                point = SetPointByCoords(x, y, _currentTurnPlayer, SignPointType.Sign);
             }
             else
             {
@@ -87,7 +105,7 @@ namespace TicTacToe.BL.Models
 
             UpdateFieldBounds(point.Position);
 
-            List<SignPoint> neighbourPoints = GetNeighbourPoints(point).ToList();
+            //List<SignPoint> neighbourPoints = GetNeighbourPoints(point).ToList();
 
             //foreach (var neighbourPoint in neighbourPoints)
             //{
@@ -126,6 +144,8 @@ namespace TicTacToe.BL.Models
             //}
 
             UpdateNextTurnPlayer();
+
+            return point;
         }
 
         public void SetMine(int x, int y)
@@ -165,18 +185,22 @@ namespace TicTacToe.BL.Models
 
             do
             {
-                if (next != null)
-                {
-                    next.SkipNextTurn = false;
-                }
+                var player = _gamePlayers[_nextTurnPlayerIndex];
 
-                next = _gamePlayers[_nextTurnPlayerIndex];
+                if (!player.SkipNextTurn)
+                {
+                    next = player;
+                }                
+                else
+                {
+                    player.SkipNextTurn = false;
+                }
 
                 _nextTurnPlayerIndex++;
 
-                if (_gamePlayers.Count >= _nextTurnPlayerIndex) { _nextTurnPlayerIndex = 0; }
+                if (_nextTurnPlayerIndex >= _gamePlayers.Count) { _nextTurnPlayerIndex = 0; }
 
-            } while (next.SkipNextTurn);
+            } while (next == null);
 
             _currentTurnPlayer = next;
 
@@ -191,10 +215,6 @@ namespace TicTacToe.BL.Models
 
         protected SignPoint SetPointByCoords(int x, int y, Player player, SignPointType pointType)
         {
-            //SignPoint point = GetPointByCoords(x, y);
-
-            //if (point == null) { pointCount++; }
-
             var point = new SignPoint(player.Id, x, y, pointType);
 
             _field[x + field_point_tansform_x, y + field_point_tansform_y] = point;            
@@ -251,7 +271,7 @@ namespace TicTacToe.BL.Models
 
                     var nPoint = GetPointByCoords(x + dx, y + dy);
 
-                    if (!nPoint.IsEmpty && (!onlySameSign || nPoint.PointType == point.PointType))
+                    if (nPoint != null && (!onlySameSign || (nPoint.PointType == point.PointType && nPoint.PlayerId == point.PlayerId)))
                     {
                         yield return nPoint;
                     }

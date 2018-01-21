@@ -48,7 +48,7 @@ namespace TicTacToe.BL.Models
 
             foreach(var p in Points)
             {
-                var direction = point.GetDirectionWith(p);
+                var direction = point ^ p;
 
                 if (Direction == direction) { return true; }
             }            
