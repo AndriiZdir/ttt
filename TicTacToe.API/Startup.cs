@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TicTacToe.API.Data;
 using TicTacToe.API.Models;
 using TicTacToe.API.Services;
+using TicTacToe.DAL;
 
 namespace TicTacToe.API
 {
@@ -27,7 +28,9 @@ namespace TicTacToe.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")))
+                .AddDbContext<GameDBContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>(o => 
             {
@@ -39,6 +42,12 @@ namespace TicTacToe.API
             })
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
+
+            services.AddAuthentication().AddGoogle(googleOptions =>
+            {
+                googleOptions.ClientId = "193973661595-2vfnq05i3dd9nokeor7vdb0piuniov79.apps.googleusercontent.com";
+                googleOptions.ClientSecret = "G0w1wW7wWek6JuYpz4YaLwnS";
+            });
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();

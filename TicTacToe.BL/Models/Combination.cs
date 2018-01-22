@@ -8,24 +8,19 @@ namespace TicTacToe.BL.Models
 {
     public class Combination
     {
-        private int _id;
+        private readonly int _competedRowSize;
 
-        public Combination(int id, CombinationDirection direction)
+        public Combination(CombinationDirection direction, int competedRowSize = 5)
         {
-            _id = id;
             Points = new List<SignPoint>();
-            Bound = Rectangle.Empty;
             State = CombinationState.Open;
-            Direction = direction;            
+            Direction = direction;
+            _competedRowSize = competedRowSize;
         }
-
-        public int Id { get { return _id; } }
 
         public CombinationState State { get; set; }
 
-        public CombinationDirection Direction { get; private set; }
-
-        public Rectangle Bound { get; private set; }
+        public CombinationDirection Direction { get; private set; }        
 
         public List<SignPoint> Points { get; private set; }
 
@@ -35,7 +30,11 @@ namespace TicTacToe.BL.Models
 
             Points.Add(point);
 
-            if (Points.Count > 5) { State = CombinationState.Completed; }
+            if (Points.Count >= _competedRowSize)
+            {
+                State = CombinationState.Completed;
+                point.Player.AddPoints(1);
+            }
         }
 
         public bool IsReadOnly => (State == CombinationState.Completed || State == CombinationState.Closed);

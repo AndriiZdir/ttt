@@ -8,7 +8,7 @@ namespace TicTacToe.DAL.Models
     public class GameRoomPlayer
     {
         public int GameRoomId { get; set; }
-        public string PlayerId { get; set; }
+        public string UserId { get; set; }
 
         public GameRoomPlayerType PlayerType { get; set; }
         public GameRoomPlayerState PlayerState { get; set; }

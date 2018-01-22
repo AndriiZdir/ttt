@@ -16,11 +16,11 @@ namespace TicTacToe.BL.Models
         private readonly int MAX_PLAYERS = 3;
         #endregion
 
-        private int pointCount = 0;
         private SignPoint[,] _field;
         private Guid _gameId;
         private Rectangle _gameBounds;
         private readonly Rectangle _maxGameFieldBounds;
+        private List<SignPoint> _gamePoints;
         private List<Combination> _gameCombinations;
 
         protected GameFieldState _gameState;
@@ -38,6 +38,7 @@ namespace TicTacToe.BL.Models
             _gameId = Guid.NewGuid();
             _gameBounds = Rectangle.Empty;
             _maxGameFieldBounds = Rectangle.FromLTRB(2 - field_point_tansform_x, 2 - field_point_tansform_y, field_point_tansform_x - 2, field_point_tansform_y - 2);
+            _gamePoints = new List<SignPoint>();
             _gameCombinations = new List<Combination>();
             _gamePlayers = new List<Player>();
             _currentTurnPlayer = null;
@@ -49,6 +50,8 @@ namespace TicTacToe.BL.Models
         public GameFieldState State { get { return _gameState; } }
 
         public Rectangle Bounds { get { return _gameBounds; } }
+
+        public List<SignPoint> Points { get { return _gamePoints; } }
 
         public List<Combination> Combinations { get { return _gameCombinations; } }
 
@@ -97,7 +100,7 @@ namespace TicTacToe.BL.Models
             }
             else if (point != null && point.PointType == SignPointType.MineNew)
             {
-                point.ExplodeMine(_currentTurnPlayer.Id);
+                point.ExplodeMine(_currentTurnPlayer);
                 _currentTurnPlayer.SkipNextTurn = true;
 
                 UpdateNextTurnPlayer();
@@ -117,21 +120,20 @@ namespace TicTacToe.BL.Models
                 var pCombination = point.GetPointCombinationForDirection(direction);
                 var nCombination = neighbourPoint.GetPointCombinationForDirection(direction);
 
-                if (nCombination != null)
+                if (nCombination != null) //neighbour point is in combination
                 {
-                    if (pCombination == null)
+                    if (pCombination == null)  //new added point is NOT in combination
                     {
                         if (!nCombination.IsReadOnly)
                         {
                             point.AddToCombination(nCombination);
                         }
                     }
-                    else
+                    else //new added point is in combination
                     {
-                        //TODO: Combination merge
-
-                        foreach(var pcPoint in pCombination.Points)
+                        foreach (var pcPoint in pCombination.Points)
                         {
+                            //Combination merge
                             pcPoint.AddToCombination(nCombination);
 
                             pCombination.State = CombinationState.Closed;
@@ -139,18 +141,18 @@ namespace TicTacToe.BL.Models
                         }
                     }
                 }
-                else
+                else //neighbour point is NOT in combination
                 {
-                    if (pCombination != null)
+                    if (pCombination != null) //new added point is in combination
                     {
                         if (!pCombination.IsReadOnly)
                         {
                             neighbourPoint.AddToCombination(pCombination);
-                        }                        
+                        }
                     }
-                    else
+                    else //new added point is NOT in combination
                     {
-                        Combination newCombination = new Combination(0, direction);
+                        Combination newCombination = new Combination(direction); //TODO: add row size setting
 
                         _gameCombinations.Add(newCombination);
 
@@ -172,7 +174,7 @@ namespace TicTacToe.BL.Models
 
             if (point != null && point.PointType == SignPointType.MineNew)
             {
-                point.ExplodeMine(_currentTurnPlayer.Id);
+                point.ExplodeMine(_currentTurnPlayer);
                 _currentTurnPlayer.SkipNextTurn = true;
             }
             else if (point == null || point.PointType == SignPointType.Empty)
@@ -188,11 +190,6 @@ namespace TicTacToe.BL.Models
         }
 
         #region Utilities
-
-        protected Player GetPlayerById(Guid playerId)
-        {
-            return _gamePlayers.Find(x => x.Id == playerId);
-        }
 
         private int _nextTurnPlayerIndex = 0;
         protected Player UpdateNextTurnPlayer()
@@ -231,7 +228,9 @@ namespace TicTacToe.BL.Models
 
         protected SignPoint SetPointByCoords(int x, int y, Player player, SignPointType pointType)
         {
-            var point = new SignPoint(player.Id, x, y, pointType);
+            var point = new SignPoint(player, x, y, pointType);
+
+            _gamePoints.Add(point);
 
             _field[x + field_point_tansform_x, y + field_point_tansform_y] = point;            
 
@@ -282,13 +281,32 @@ namespace TicTacToe.BL.Models
 
                     var nPoint = GetPointByCoords(x + dx, y + dy);
 
-                    if (nPoint != null && (!onlySameSign || (nPoint.PointType == point.PointType && nPoint.PlayerId == point.PlayerId)))
+                    if (nPoint != null && (!onlySameSign || (nPoint.PointType == point.PointType && nPoint.Player.Id == point.Player.Id)))
                     {
                         yield return nPoint;
                     }
                 }
             }
             
+        }
+
+        public void CompleteTheGame()
+        {
+            _gameState = GameFieldState.Completed;
+            
+            var maxPoints = _gamePlayers.Max(x => x.Points);
+
+            foreach (var player in _gamePlayers)
+            {
+                if (player.Points == maxPoints)
+                {
+                    player.State = PlayerState.Winner;
+                }
+                else
+                {
+                    player.State = PlayerState.Loser;
+                }
+            }
         }
 
         #endregion

@@ -11,9 +11,12 @@ namespace TicTacToe.BL.Models
             Id = playerId;
             _mines = 1;
             SkipNextTurn = false;
+            State = PlayerState.InGame;
         }
 
         public Guid Id { get; private set; }
+
+        public PlayerState State { get; set; }
 
         private int _mines;
         public int Mines => _mines;
@@ -23,11 +26,16 @@ namespace TicTacToe.BL.Models
 
         public bool SkipNextTurn { get; set; }
 
-        public int AddPoints(int count = 1)
+        public int AddPoints(int count)
         {
             _points += count;
 
             return _points;
+        }
+
+        public int GiveMine()
+        {
+            return ++_mines;
         }
 
         public int UseMine()
@@ -35,4 +43,12 @@ namespace TicTacToe.BL.Models
             return --_mines;
         }
     }
+
+    public enum PlayerState
+    {
+        InGame,
+        Winner,
+        Loser
+    }
+
 }

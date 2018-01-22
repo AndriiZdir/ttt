@@ -9,37 +9,37 @@ namespace TicTacToe.BL.Models
     public class SignPoint
     {
         private Point _position;
-        private Guid _playerId;
+        private Player _player;
         private SignPointType _pointType;
         private Dictionary<CombinationDirection, Combination> _pointCombinations;
 
-        public SignPoint(Guid playerId, Point position, SignPointType pointType)
+        public SignPoint(Player player, Point position, SignPointType pointType)
         {
             _position = position;
-            _playerId = playerId;
+            _player = player;
             _pointType = pointType;
             _pointCombinations = new Dictionary<CombinationDirection, Combination>();
         }
 
-        public SignPoint(Guid playerId, int x, int y, SignPointType pointType) : this(playerId, new Point(x, y), pointType) { }
+        public SignPoint(Player player, int x, int y, SignPointType pointType) : this(player, new Point(x, y), pointType) { }
 
 
         public Point Position { get { return _position; } }
 
         public SignPointType PointType { get { return _pointType; } }
 
-        public Guid PlayerId { get { return _playerId; } }
+        public Player Player { get { return _player; } }
 
 
         public bool IsReadOnly => (_pointType == SignPointType.Sign || _pointType == SignPointType.MineUsed);
         
 
-        public void ExplodeMine(Guid detonatedBy)
+        public void ExplodeMine(Player detonatedBy)
         {
             if (_pointType == SignPointType.MineNew)
             {
                 _pointType = SignPointType.MineUsed;
-                _playerId = detonatedBy;
+                _player = detonatedBy;
             }
             else
             {
@@ -72,7 +72,7 @@ namespace TicTacToe.BL.Models
             var c1 = (SignPoint)obj;
 
             return
-                c1._playerId == _playerId
+                c1._player == _player
                 && c1._position == _position
                 && c1._pointType == _pointType;
         }
@@ -101,7 +101,7 @@ namespace TicTacToe.BL.Models
                 return false;
             }
 
-            return c1._playerId == c2._playerId
+            return c1._player == c2._player
                 && c1._position == c2._position
                 && c1._pointType == c2._pointType;
         }

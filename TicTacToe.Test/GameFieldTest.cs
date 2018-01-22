@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Drawing;
+using System.Linq;
 using TicTacToe.BL.Models;
 
 namespace TicTacToe.Test
@@ -105,11 +106,11 @@ namespace TicTacToe.Test
             var pnt5 = gm.SetPointSign(3, 1);
             Assert.IsFalse(pl2.SkipNextTurn);
 
-            Assert.AreEqual(pnt1.PlayerId, pnt3.PlayerId);
-            Assert.AreEqual(pnt2.PlayerId, pnt4.PlayerId);
-            Assert.AreEqual(pnt1.PlayerId, pl2.Id);
-            Assert.AreEqual(pnt2.PlayerId, pl1.Id);
-            Assert.AreEqual(pnt5.PlayerId, pl1.Id);
+            Assert.AreEqual(pnt1.Player, pnt3.Player);
+            Assert.AreEqual(pnt2.Player, pnt4.Player);
+            Assert.AreEqual(pnt1.Player, pl2);
+            Assert.AreEqual(pnt2.Player, pl1);
+            Assert.AreEqual(pnt5.Player, pl1);
 
         }
 
@@ -218,9 +219,9 @@ namespace TicTacToe.Test
         }
 
         [TestMethod]
-        public void TestCombinations()
+        public void TestCombinations1()
         {
-
+            
             var pl1 = gm.AddPlayerToField(Guid.NewGuid());
             _currentTurnPlayer = pl1;
             _gameState = GameFieldState.Ready;
@@ -323,6 +324,59 @@ namespace TicTacToe.Test
             point = gm.SetPointSign(8, 15);
 
             Assert.AreEqual(11, gm.Combinations.Count);
+        }
+
+        [TestMethod]
+        public void TestPlayerCombinationsAndGameCompleting()
+        {
+
+            var pl1 = gm.AddPlayerToField(Guid.NewGuid());
+            var pl2 = gm.AddPlayerToField(Guid.NewGuid());
+
+            Assert.AreEqual(PlayerState.InGame, pl1.State);
+            Assert.AreEqual(PlayerState.InGame, pl2.State);
+
+            Assert.AreEqual(GameFieldState.Ready, gm.State);
+
+            /*            
+             *      X      
+             *      XOOO     
+             *      X O  
+             *      XO       
+             *      X        
+             */
+
+            var p1point = gm.SetPointSign(0, 0);
+            var p2point = gm.SetPointSign(1, 1);
+
+            Assert.AreEqual(0, gm.Combinations.Count);
+
+            p1point = gm.SetPointSign(0, 2);
+            p2point = gm.SetPointSign(2, 1);
+
+            Assert.AreEqual(1, gm.Combinations.Count);
+
+            p1point = gm.SetPointSign(0, 1);
+            p2point = gm.SetPointSign(3, 1);
+
+            Assert.AreEqual(2, gm.Combinations.Count);
+
+            p1point = gm.SetPointSign(0, -1);
+            p2point = gm.SetPointSign(2, 0);
+
+            Assert.AreEqual(5, gm.Combinations.Count);
+
+            p1point = gm.SetPointSign(0, -2);
+            p2point = gm.SetPointSign(1, -1);
+
+            Assert.AreEqual(5, gm.Combinations.Count);
+            Assert.AreEqual(1, gm.Combinations.Count(x => x.State == CombinationState.Completed));
+            Assert.AreEqual(1, pl1.Points);
+
+            gm.CompleteTheGame();
+
+            Assert.AreEqual(PlayerState.Winner, pl1.State);
+            Assert.AreEqual(PlayerState.Loser, pl2.State);
         }
     }
 }
