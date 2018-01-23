@@ -28,9 +28,9 @@ namespace TicTacToe.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")))
+                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), o => o.MigrationsAssembly("TicTacToe.API")))
                 .AddDbContext<GameDBContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), o => o.MigrationsAssembly("TicTacToe.API")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>(o => 
             {

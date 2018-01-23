@@ -14,6 +14,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicTacToe", "TicTacToe.Application\TicTacToe\TicTacToe.csproj", "{06D4901B-5FDD-5688-D209-6B9A4C80A58D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client Application", "Client Application", "{E8850AEF-43D8-49F6-9734-14FEC97E76AE}"
+	ProjectSection(SolutionItems) = preProject
+		DBScaffoldCmd.txt = DBScaffoldCmd.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

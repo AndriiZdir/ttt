@@ -17,6 +17,8 @@ namespace TicTacToe.DAL
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Entity<GameRoomPlayer>(entity => { entity.HasKey(e => new { e.UserId, e.GameRoomId }); });
+
             base.OnModelCreating(builder);
         }
     }
