@@ -5,18 +5,30 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TicTacToe.API.Attributes;
+using TicTacToe.API.Models;
 
 namespace TicTacToe.API.Areas.Game
 {
     [Produces("application/json")]
-    [Area("g")]
+    [CustomExceptionFilter]
     public class BaseGameController : Controller
     {
-        protected IHostingEnvironment hostEnvironment { get; set; }
+        //protected IHostingEnvironment hostEnvironment { get; set; }
 
-        public BaseGameController(IHostingEnvironment hostEnvironment)
+        //public BaseGameController(IHostingEnvironment hostEnvironment)
+        //{
+        //    this.hostEnvironment = hostEnvironment;
+        //}
+
+        public BaseApiModel ListResult<T>(IEnumerable<T> list)
         {
-            this.hostEnvironment = hostEnvironment;
+            return new BaseListResultModel<T>(list);
+        }
+
+        public BaseApiModel EntityResult<T>(T entity)
+        {
+            return new BaseResultModel<T>(entity);
         }
     }
 }

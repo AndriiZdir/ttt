@@ -12,6 +12,9 @@ using TicTacToe.API.Data;
 using TicTacToe.API.Models;
 using TicTacToe.API.Services;
 using TicTacToe.DAL;
+using TicTacToe.BL;
+using Microsoft.Extensions.Caching.Distributed;
+using TicTacToe.DAL.Services;
 
 namespace TicTacToe.API
 {
@@ -43,6 +46,13 @@ namespace TicTacToe.API
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+            services.AddDistributedSqlServerCache(options =>
+            {
+                options.ConnectionString = Configuration.GetConnectionString("DefaultConnection");
+                options.SchemaName = "dbo";
+                options.TableName = "AppCache";            
+            });
+
             services.AddAuthentication().AddGoogle(googleOptions =>
             {
                 googleOptions.ClientId = "193973661595-2vfnq05i3dd9nokeor7vdb0piuniov79.apps.googleusercontent.com";
@@ -52,12 +62,22 @@ namespace TicTacToe.API
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
 
+            services.AddSingleton<GameManager>();
+            services.AddScoped<GameRoomService>();
+
+
             services.AddMvc();            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IDistributedCache cache)
         {
+            var serverStartTimeString = DateTime.Now.ToString();
+            byte[] val = System.Text.Encoding.UTF8.GetBytes(serverStartTimeString);
+            var cacheEntryOptions = new DistributedCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromSeconds(30));
+            cache.Set("lastServerStartTime", val, cacheEntryOptions);
+
             if (env.IsDevelopment())
             {
                 app.UseBrowserLink();

@@ -6,4 +6,6 @@ Migration wtCMS create:
 	dotnet ef migrations add AddName -o Migrations -c wtCMSContext
 	dotnet ef database update -c wtCMSContext
 
+
 Add-Migration TEST -Context GameDbContext
+Update-Database -Context GameDbContext

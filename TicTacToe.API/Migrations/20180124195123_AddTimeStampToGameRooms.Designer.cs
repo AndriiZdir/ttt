@@ -14,9 +14,10 @@ using TicTacToe.DAL.Models;
 namespace TicTacToe.API.Migrations
 {
     [DbContext(typeof(GameDBContext))]
-    partial class GameDBContextModelSnapshot : ModelSnapshot
+    [Migration("20180124195123_AddTimeStampToGameRooms")]
+    partial class AddTimeStampToGameRooms
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
