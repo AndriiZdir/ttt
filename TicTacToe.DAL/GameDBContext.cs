@@ -8,7 +8,7 @@ using TicTacToe.DAL.Models;
 
 namespace TicTacToe.DAL
 {
-    public class GameDBContext : IdentityDbContext<IdentityUser>
+    public class GameDBContext : IdentityDbContext<Player>
     {
         public GameDBContext(DbContextOptions<GameDBContext> options) : base(options) { }
 

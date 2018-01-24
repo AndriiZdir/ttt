@@ -30,5 +30,13 @@ namespace TicTacToe.API.Areas.Game
         {
             return new BaseResultModel<T>(entity);
         }
+
+        public BaseApiModel ValidationResult()
+        {
+            var result = ListResult(ModelState.ToDictionary(x => x.Key, y => y.Value.Errors));
+            result.Code = 400;
+            result.Message = "Invalid input";
+            return result;
+        }
     }
 }
