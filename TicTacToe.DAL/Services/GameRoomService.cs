@@ -55,7 +55,7 @@ namespace TicTacToe.DAL.Services
 
             if (creatorPlayer == null) { throw new ArgumentException("There is no such user!"); }
 
-            await RemovePlayerFromAllActiveGames(creatorPlayer.Id);
+            await RemovePlayerFromGame(creatorPlayer.Id);
 
             var gameRoom = new GameRoom();
 
@@ -114,7 +114,7 @@ namespace TicTacToe.DAL.Services
                 throw new Exception("Password is invalid.");
             }
 
-            await RemovePlayerFromAllActiveGames(playerId);            
+            await RemovePlayerFromGame(playerId);            
 
             var entity = new GameRoomPlayer();
 
@@ -131,9 +131,14 @@ namespace TicTacToe.DAL.Services
             return entity;
         }
 
+        public Task KickPlayerFromGameRoom(string playerId, int gameId)
+        {
+            return RemovePlayerFromGame(playerId, gameId);
+        }
+
         public Task RemovePlayerFromGameRoom(string playerId)
         {
-            return RemovePlayerFromAllActiveGames(playerId);
+            return RemovePlayerFromGame(playerId);
         }
 
         public async Task<GameRoomPlayer> ChangePlayerSign(string playerId, int gameId, GameRoomPlayerSign sign)
@@ -212,12 +217,19 @@ namespace TicTacToe.DAL.Services
             if (!roomPlayers.Any(x => x.PlayerSign == GameRoomPlayerSign.Wy)) { yield return GameRoomPlayerSign.Wy; }
         }
 
-        private async Task<int> RemovePlayerFromAllActiveGames(string playerId)
+        /// <summary>
+        /// Removes player from all rooms
+        /// </summary>
+        /// <param name="playerId">Player Id</param>
+        /// <param name="roomId">Room Id. If null - removes from ALL game rooms</param>
+        /// <returns></returns>
+        private async Task<int> RemovePlayerFromGame(string playerId, int? roomId = null)
         {
             var playerActiveGames = await _dbContext
                             .GameRoomPlayers
                             .Include(x => x.GameRoom)
-                            .Where(x => x.UserId == playerId                                        
+                            .Where(x => x.UserId == playerId
+                                        && (roomId == null || x.GameRoomId == roomId)
                                         && (x.PlayerState == GameRoomPlayerState.Ready || x.PlayerState == GameRoomPlayerState.Waiting)
                                         && (x.GameRoom.State == GameRoomState.Started || x.GameRoom.State == GameRoomState.New))
                             .ToListAsync();

@@ -56,17 +56,34 @@ namespace TicTacToe.API.Areas.Game
         }
 
         [HttpGet("join/{roomid}")]
-        public async Task<object> JoinGame(Guid RoomId, string Password = null)
+        public async Task<object> JoinGame(Guid roomId, string password = null)
         {
-            var gameRoom = await _gameRoomService.FindRoomByGuidId(RoomId);
+            var gameRoom = await _gameRoomService.FindRoomByGuidId(roomId);
 
             if (gameRoom == null) { return NotFoundResult("Room with such id not found"); }
 
             var currentUser = await _userManager.GetUserAsync(User);
 
-            var gameRoomPlayer = await _gameRoomService.JoinPlayerToGameRoom(currentUser.Id, gameRoom.Id, password: Password);
+            var gameRoomPlayer = await _gameRoomService.JoinPlayerToGameRoom(currentUser.Id, gameRoom.Id, password: password);
 
-            return StatusResult(200, $"Player has been joined the room {RoomId}.");
+            return StatusResult(200, $"Player has been joined the room {roomId}.");
+        }
+
+        [HttpGet("kick/{roomid}/{playerid}")]
+        public async Task<object> KickFromRoom(Guid roomId, string playerId)
+        {
+            var gameRoom = await _gameRoomService.FindRoomByGuidId(roomId);
+
+            if (gameRoom == null) { return NotFoundResult("Room with such id not found"); }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if (gameRoom.CreateUser != currentUser.Id 
+                && gameRoom.State == GameRoomState.New) { return StatusResult(400, "You have no permission to do that."); }
+
+            await _gameRoomService.KickPlayerFromGameRoom(playerId, gameRoom.Id);
+
+            return StatusResult(200, $"Player has been kicked from the room by its creator.");
         }
 
         [HttpGet("leave")]
