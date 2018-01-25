@@ -29,10 +29,10 @@ namespace TicTacToe.API.Areas.Game
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<object> GameList()
+        public async Task<object> GameList(string search)
         {
             var result = await _gameRoomService
-                .GetLobbyGames(notFullOnly: true)
+                .GetLobbyGames(search: search)
                 .QuerySkipTake(0, 20)
                 .Select(LobbyGameListItemModel.GetSelectExpression())
                 .ToListAsync();
@@ -52,7 +52,7 @@ namespace TicTacToe.API.Areas.Game
 
             var result = await _gameRoomService.CreateGameRoom(currentUser.Id, model.MaxPlayers, model.MinesQuantity, false, model.Password);
 
-            return EntityResult(result);
+            return StatusResult(200, "Game room has been created");
         }
 
         [HttpGet("join/{roomid}")]
@@ -66,9 +66,25 @@ namespace TicTacToe.API.Areas.Game
 
             var gameRoomPlayer = await _gameRoomService.JoinPlayerToGameRoom(currentUser.Id, gameRoom.Id, password: Password);
 
-            return EntityResult(gameRoomPlayer);
+            return StatusResult(200, $"Player has been joined room {RoomId}.");
         }
 
+        [HttpGet("ready/{roomid}")]
+        public async Task<object> SetAsReady(Guid RoomId)
+        {
+            var gameRoom = await _gameRoomService.FindRoomByGuidId(RoomId);
+
+            if (gameRoom == null) { return NotFoundResult("Room with such id not found"); }
+
+            if (gameRoom.State == GameRoomState.Started
+                || gameRoom.State == GameRoomState.Closed) { return StatusResult(400, "Unable to set player status in this room."); }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            var gameRoomPlayer = await _gameRoomService.ChangePlayerState(currentUser.Id, gameRoom.Id, DAL.Enums.GameRoomPlayerState.Ready);
+
+            return StatusResult(200, $"Player is Ready.");
+        }
 
         [HttpGet("details/{roomid}")]
         public async Task<object> GameDetails(Guid RoomId)

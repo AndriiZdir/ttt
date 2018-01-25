@@ -43,8 +43,8 @@ namespace TicTacToe.API.Areas.Game
 
         public BaseApiModel NotFoundResult() { return NotFoundResult("Not found"); }
 
-        public BaseApiModel NotFoundResult(string message) { return ErrorResult(404, message); }
+        public BaseApiModel NotFoundResult(string message) { return StatusResult(404, message); }
 
-        public BaseApiModel ErrorResult(int code, string message) { return new BaseApiModel { Code = code, Message = message }; }
+        public BaseApiModel StatusResult(int code, string message) { return new BaseApiModel { Code = code, Message = message }; }
     }
 }

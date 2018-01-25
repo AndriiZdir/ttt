@@ -52,6 +52,8 @@ namespace TicTacToe.DAL.Services
 
             if (creatorPlayer == null) { throw new ArgumentException("There is no such user!"); }
 
+            await RemovePlayerFromAllActiveGames(creatorPlayer.Id);
+
             var gameRoom = new GameRoom();
 
             gameRoom.RoomGuid = Guid.NewGuid();
@@ -68,11 +70,15 @@ namespace TicTacToe.DAL.Services
 
             _dbContext.GameRooms.Add(gameRoom);
 
-            gameRoom.GameRoomPlayers.Add(new GameRoomPlayer {
-                UserId = creatorUserId,                
-                PlayerSign = GameRoomPlayerSign.Cross,
-                PlayerState = GameRoomPlayerState.Waiting,
-                PlayerType = GameRoomPlayerType.Creator });
+            gameRoom.GameRoomPlayers = new HashSet<GameRoomPlayer>() {
+                new GameRoomPlayer
+                {
+                    UserId = creatorUserId,
+                    PlayerSign = GameRoomPlayerSign.Cross,
+                    PlayerState = GameRoomPlayerState.Waiting,
+                    PlayerType = GameRoomPlayerType.Creator
+                }
+            };
 
             await _dbContext.SaveChangesAsync();
 
@@ -85,9 +91,15 @@ namespace TicTacToe.DAL.Services
                 .Include(x => x.GameRoomPlayers)
                 .SingleOrDefaultAsync(x => x.Id == gameId);
 
-            if (gameRoom.State == GameRoomState.Started || gameRoom.State == GameRoomState.Closed)
+            if (gameRoom.State == GameRoomState.Started 
+                || gameRoom.State == GameRoomState.Closed)
             {
-                throw new Exception("This game is started already.");
+                throw new Exception("This game started already.");
+            }
+
+            if (gameRoom.GameRoomPlayers.Any(x => x.UserId == playerId))
+            {
+                throw new Exception("Player joined this room already.");
             }
 
             if (gameRoom.GameRoomPlayers.Count >= gameRoom.MaxPlayers)
@@ -97,41 +109,10 @@ namespace TicTacToe.DAL.Services
 
             if (gameRoom.Password != password)
             {
-                throw new Exception("Password is invalid");
+                throw new Exception("Password is invalid.");
             }
 
-            #region Check participation in other games            
-            var playerActiveGames = await _dbContext
-                .GameRoomPlayers
-                .Include(x => x.GameRoom)
-                .Where(x => x.UserId == playerId
-                            && x.GameRoomId != gameRoom.Id
-                            && (x.PlayerState == GameRoomPlayerState.Ready || x.PlayerState == GameRoomPlayerState.Waiting)
-                            && (x.GameRoom.State == GameRoomState.Started || x.GameRoom.State == GameRoomState.New))
-                .ToListAsync();
-
-            foreach (var playerActiveGame in playerActiveGames)
-            {
-                if (playerActiveGame.GameRoom.State == GameRoomState.New)
-                {
-                    if (playerActiveGame.PlayerType == GameRoomPlayerType.Creator)
-                    {
-                        _dbContext.GameRooms.Remove(playerActiveGame.GameRoom);
-                    }
-                    else
-                    {
-                        _dbContext.GameRoomPlayers.Remove(playerActiveGame);
-                    }                    
-                }
-                else if (playerActiveGame.GameRoom.State == GameRoomState.Started)
-                {
-                    playerActiveGame.PlayerState = GameRoomPlayerState.Left;
-                    //TODO: game manager player disconnection
-                }
-            }
-            #endregion
-
-            await _dbContext.SaveChangesAsync();
+            await RemovePlayerFromAllActiveGames(playerId);            
 
             var entity = new GameRoomPlayer();
 
@@ -148,37 +129,16 @@ namespace TicTacToe.DAL.Services
             return entity;
         }
 
-        public async Task<GameRoomPlayer> RemovePlayerFromGameRoom(string playerId, int gameId)
+        public Task RemovePlayerFromGameRoom(string playerId)
         {
-            var gameRoomPlayer = await _dbContext.GameRoomPlayers
-                .Include(x => x.GameRoom)
-                .SingleOrDefaultAsync(x => x.UserId == playerId && x.GameRoomId == gameId);
-
-            if (gameRoomPlayer.GameRoom.State == GameRoomState.New)
-            {
-                if (gameRoomPlayer.PlayerType == GameRoomPlayerType.Creator)
-                {
-                    _dbContext.GameRooms.Remove(gameRoomPlayer.GameRoom);
-                }
-                else
-                {
-                    _dbContext.GameRoomPlayers.Remove(gameRoomPlayer);
-                }                
-            }
-            else
-            {
-                gameRoomPlayer.PlayerState = GameRoomPlayerState.Left;
-                //TODO: game manager player disconnection
-            }
-
-            await _dbContext.SaveChangesAsync();
-
-            return gameRoomPlayer;
+            return RemovePlayerFromAllActiveGames(playerId);
         }
 
         public async Task<GameRoomPlayer> ChangePlayerSign(string playerId, int gameId, GameRoomPlayerSign sign)
         {
-            var gameRoomPlayers = await _dbContext.GameRoomPlayers.Where(x => x.GameRoomId == gameId).ToListAsync();
+            var gameRoomPlayers = await _dbContext.GameRoomPlayers
+                .Where(x => x.GameRoomId == gameId)
+                .ToListAsync();
 
             var gameRoomPlayer = gameRoomPlayers.Find(x => x.UserId == playerId);
 
@@ -199,6 +159,26 @@ namespace TicTacToe.DAL.Services
             return gameRoomPlayer;
         }
 
+        public async Task<GameRoomPlayer> ChangePlayerState(string playerId, int gameId, GameRoomPlayerState state)
+        {
+            var gameRoomPlayers = await _dbContext.GameRoomPlayers
+                .Where(x => x.GameRoomId == gameId)
+                .ToListAsync();
+
+            var gameRoomPlayer = gameRoomPlayers.Find(x => x.UserId == playerId);
+
+            if (gameRoomPlayer == null)
+            {
+                throw new Exception("There is no such user in this game room!");
+            }
+            
+            gameRoomPlayer.PlayerState = state;
+
+            await _dbContext.SaveChangesAsync();
+
+            return gameRoomPlayer;
+        }
+
         #region Utilities
         private IEnumerable<GameRoomPlayerSign> GetFreeSigns(ICollection<GameRoomPlayer> roomPlayers)
         {
@@ -209,6 +189,41 @@ namespace TicTacToe.DAL.Services
             if (!roomPlayers.Any(x => x.PlayerSign == GameRoomPlayerSign.Zed)) { yield return GameRoomPlayerSign.Zed; }
             if (!roomPlayers.Any(x => x.PlayerSign == GameRoomPlayerSign.Aitch)) { yield return GameRoomPlayerSign.Aitch; }
             if (!roomPlayers.Any(x => x.PlayerSign == GameRoomPlayerSign.Wy)) { yield return GameRoomPlayerSign.Wy; }
+        }
+
+        private async Task<int> RemovePlayerFromAllActiveGames(string playerId)
+        {
+            var playerActiveGames = await _dbContext
+                            .GameRoomPlayers
+                            .Include(x => x.GameRoom)
+                            .Where(x => x.UserId == playerId                                        
+                                        && (x.PlayerState == GameRoomPlayerState.Ready || x.PlayerState == GameRoomPlayerState.Waiting)
+                                        && (x.GameRoom.State == GameRoomState.Started || x.GameRoom.State == GameRoomState.New))
+                            .ToListAsync();
+
+            foreach (var playerActiveGame in playerActiveGames)
+            {
+                if (playerActiveGame.GameRoom.State == GameRoomState.New)
+                {
+                    if (playerActiveGame.PlayerType == GameRoomPlayerType.Creator)
+                    {
+                        _dbContext.GameRooms.Remove(playerActiveGame.GameRoom);
+                    }
+                    else
+                    {
+                        _dbContext.GameRoomPlayers.Remove(playerActiveGame);
+                    }
+                }
+                else if (playerActiveGame.GameRoom.State == GameRoomState.Started)
+                {
+                    playerActiveGame.PlayerState = GameRoomPlayerState.Left;
+                    //TODO: game manager player disconnection
+                }                
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            return playerActiveGames.Count;
         }
         #endregion
 

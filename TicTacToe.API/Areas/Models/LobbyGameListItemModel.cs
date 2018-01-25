@@ -20,7 +20,7 @@ namespace TicTacToe.API.Areas.Models
             return (x => new LobbyGameListItemModel
                     {
                         GameId = x.RoomGuid.ToString(),
-                        CreatedByUserName = x.CreatedBy.UserName,
+                        //CreatedByUserName = x.CreatedBy.UserName,
                         IsWithPassword = (x.Password != null),
                         MaxUsers = x.MaxPlayers,
                         JoinedUsers = x.GameRoomPlayers.Count,
