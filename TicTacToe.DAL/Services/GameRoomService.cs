@@ -9,6 +9,9 @@ using TicTacToe.DAL.Enums;
 
 namespace TicTacToe.DAL.Services
 {
+    /// <summary>
+    /// Controlls the lobby: creating, joining, leaving, starting and setting up the game.
+    /// </summary>
     public class GameRoomService
     {
         GameDBContext _dbContext;
@@ -89,12 +92,11 @@ namespace TicTacToe.DAL.Services
         {
             var gameRoom = await _dbContext.GameRooms
                 .Include(x => x.GameRoomPlayers)
-                .SingleOrDefaultAsync(x => x.Id == gameId);
+                .SingleOrDefaultAsync(x => x.Id == gameId && x.State == GameRoomState.New);
 
-            if (gameRoom.State == GameRoomState.Started 
-                || gameRoom.State == GameRoomState.Closed)
+            if (gameRoom == null)
             {
-                throw new Exception("This game started already.");
+                throw new Exception("Room not found or game already started.");
             }
 
             if (gameRoom.GameRoomPlayers.Any(x => x.UserId == playerId))
@@ -137,7 +139,7 @@ namespace TicTacToe.DAL.Services
         public async Task<GameRoomPlayer> ChangePlayerSign(string playerId, int gameId, GameRoomPlayerSign sign)
         {
             var gameRoomPlayers = await _dbContext.GameRoomPlayers
-                .Where(x => x.GameRoomId == gameId)
+                .Where(x => x.GameRoomId == gameId && x.GameRoom.State == GameRoomState.New)
                 .ToListAsync();
 
             var gameRoomPlayer = gameRoomPlayers.Find(x => x.UserId == playerId);
@@ -162,7 +164,7 @@ namespace TicTacToe.DAL.Services
         public async Task<GameRoomPlayer> ChangePlayerState(string playerId, int gameId, GameRoomPlayerState state)
         {
             var gameRoomPlayers = await _dbContext.GameRoomPlayers
-                .Where(x => x.GameRoomId == gameId)
+                .Where(x => x.GameRoomId == gameId && x.GameRoom.State == GameRoomState.New)
                 .ToListAsync();
 
             var gameRoomPlayer = gameRoomPlayers.Find(x => x.UserId == playerId);
@@ -177,6 +179,25 @@ namespace TicTacToe.DAL.Services
             await _dbContext.SaveChangesAsync();
 
             return gameRoomPlayer;
+        }
+
+        public async Task<GameRoom> StartGame(string creatorUserId, Guid roomId)
+        {
+            var playerGame = await _dbContext.GameRooms
+                .Include(x => x.GameRoomPlayers)
+                .SingleOrDefaultAsync(x => x.RoomGuid == roomId
+                                        && x.CreateUser == creatorUserId
+                                        && x.State == GameRoomState.New);
+
+            if (playerGame == null) { throw new Exception("Room not found or game already started."); }
+
+            if (playerGame.GameRoomPlayers.Any(x => x.PlayerState == GameRoomPlayerState.Waiting)) { throw new Exception("Start game: Some users are not ready."); }
+
+            playerGame.State = GameRoomState.Started;
+
+            await _dbContext.SaveChangesAsync();
+
+            return playerGame;
         }
 
         #region Utilities

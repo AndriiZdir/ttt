@@ -51,7 +51,7 @@ namespace TicTacToe.API.Areas.Game
             var currentUser = await _userManager.GetUserAsync(User);
 
             var result = await _gameRoomService.CreateGameRoom(currentUser.Id, model.MaxPlayers, model.MinesQuantity, false, model.Password);
-
+            
             return StatusResult(200, "Game room has been created");
         }
 
@@ -66,7 +66,21 @@ namespace TicTacToe.API.Areas.Game
 
             var gameRoomPlayer = await _gameRoomService.JoinPlayerToGameRoom(currentUser.Id, gameRoom.Id, password: Password);
 
-            return StatusResult(200, $"Player has been joined room {RoomId}.");
+            return StatusResult(200, $"Player has been joined the room {RoomId}.");
+        }
+
+        [HttpGet("leave")]
+        public async Task<object> LeaveGame()
+        {
+            //var gameRoom = await _gameRoomService.FindRoomByGuidId(RoomId);
+
+            //if (gameRoom == null) { return NotFoundResult("Room with such id not found"); }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            await _gameRoomService.RemovePlayerFromGameRoom(currentUser.Id);
+
+            return StatusResult(200, $"Player has been left all rooms.");
         }
 
         [HttpGet("ready/{roomid}")]
@@ -86,12 +100,22 @@ namespace TicTacToe.API.Areas.Game
             return StatusResult(200, $"Player is Ready.");
         }
 
-        [HttpGet("details/{roomid}")]
-        public async Task<object> GameDetails(Guid RoomId)
+        [HttpGet("start/{roomid}")]
+        public async Task<object> StartGame(Guid RoomId)
         {
-            var result = await _gameRoomService.GetLobbyGames(notFullOnly: true).ToListAsync();
+            var currentUser = await _userManager.GetUserAsync(User);
 
-            return ListResult(result);
+            await _gameRoomService.StartGame(currentUser.Id, RoomId);
+
+            return StatusResult(200, $"Starting the game...");
         }
+
+        //[HttpGet("details/{roomid}")]
+        //public async Task<object> GameDetails(Guid RoomId)
+        //{
+        //    var result = await _gameRoomService.GetLobbyGames(notFullOnly: true).ToListAsync();
+
+        //    return ListResult(result);
+        //}
     }
 }
