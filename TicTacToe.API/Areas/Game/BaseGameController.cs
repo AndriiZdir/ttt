@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,7 @@ namespace TicTacToe.API.Areas.Game
 {
     [Produces("application/json")]
     [CustomExceptionFilter]
+    [Authorize]
     public class BaseGameController : Controller
     {
         //protected IHostingEnvironment hostEnvironment { get; set; }
@@ -38,5 +40,11 @@ namespace TicTacToe.API.Areas.Game
             result.Message = "Invalid input";
             return result;
         }
+
+        public BaseApiModel NotFoundResult() { return NotFoundResult("Not found"); }
+
+        public BaseApiModel NotFoundResult(string message) { return ErrorResult(404, message); }
+
+        public BaseApiModel ErrorResult(int code, string message) { return new BaseApiModel { Code = code, Message = message }; }
     }
 }

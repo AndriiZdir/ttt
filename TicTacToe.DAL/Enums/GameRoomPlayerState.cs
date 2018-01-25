@@ -7,6 +7,10 @@ namespace TicTacToe.DAL.Enums
     public enum GameRoomPlayerState
     {
         Waiting,
-        Ready
+        Ready,
+        /// <summary>
+        ///If user joins other game, he will be forcible disconnected from the current one.
+        /// </summary>
+        Left
     }
 }

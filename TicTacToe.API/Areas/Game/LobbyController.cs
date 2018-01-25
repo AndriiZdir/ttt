@@ -28,15 +28,19 @@ namespace TicTacToe.API.Areas.Game
         }
 
         [HttpGet]
-        public object GameList()
+        [AllowAnonymous]
+        public async Task<object> GameList()
         {
-            var result = _gameRoomService.GetLobbyGames(notFullOnly: true);
+            var result = await _gameRoomService
+                .GetLobbyGames(notFullOnly: true)
+                .QuerySkipTake(0, 20)
+                .Select(LobbyGameListItemModel.GetSelectExpression())
+                .ToListAsync();
 
             return ListResult(result);
         }
 
-        [HttpGet("init")]
-        [Authorize]
+        [HttpGet("init")]        
         public async Task<object> InitGame(LobbyInitGameModel model)
         {
             if (!ModelState.IsValid)
@@ -44,23 +48,32 @@ namespace TicTacToe.API.Areas.Game
                 return ValidationResult();
             }
 
-            var currentUser = await _userManager.Users.FirstAsync();
+            var currentUser = await _userManager.GetUserAsync(User);
 
-            var result = _gameRoomService.CreateGame(currentUser.Id, model.MaxPlayers, model.MinesQuantity, false, model.Password);
+            var result = await _gameRoomService.CreateGameRoom(currentUser.Id, model.MaxPlayers, model.MinesQuantity, false, model.Password);
 
             return EntityResult(result);
         }
 
-        [HttpGet("join")]
-        [Authorize]
-        public object JoinGame(LobbyInitGameModel model)
+        [HttpGet("join/{roomid}")]
+        public async Task<object> JoinGame(Guid RoomId, string Password = null)
         {
-            if (!ModelState.IsValid)
-            {
-                return ValidationResult();
-            }
+            var gameRoom = await _gameRoomService.FindRoomByGuidId(RoomId);
 
-            var result = _gameRoomService.GetLobbyGames(notFullOnly: true);
+            if (gameRoom == null) { return NotFoundResult("Room with such id not found"); }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            var gameRoomPlayer = await _gameRoomService.JoinPlayerToGameRoom(currentUser.Id, gameRoom.Id, password: Password);
+
+            return EntityResult(gameRoomPlayer);
+        }
+
+
+        [HttpGet("details/{roomid}")]
+        public async Task<object> GameDetails(Guid RoomId)
+        {
+            var result = await _gameRoomService.GetLobbyGames(notFullOnly: true).ToListAsync();
 
             return ListResult(result);
         }

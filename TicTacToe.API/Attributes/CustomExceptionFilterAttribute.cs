@@ -14,7 +14,7 @@ namespace TicTacToe.API.Attributes
         public override void OnException(ExceptionContext context)
         {
             var exception = context.Exception;
-            context.Result = new JsonResult(BaseApiModel.ErrorResult(500, exception.Message));
+            context.Result = new JsonResult(new BaseApiModel { Code = 500, Message = exception.Message });
         }        
     }
 }
