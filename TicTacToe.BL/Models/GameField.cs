@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 
 namespace TicTacToe.BL.Models
 {
-    public class GameField
+    public class GameField : IDisposable
     {
         #region readonlies
         private readonly int _fieldSize;
         private readonly int field_point_tansform_x;
         private readonly int field_point_tansform_y;
         private readonly int max_bound_increase = 10;
-        private readonly int MAX_PLAYERS = 3;
         #endregion
 
         private SignPoint[,] _field;
@@ -28,16 +27,16 @@ namespace TicTacToe.BL.Models
         private List<Player> _gamePlayers;
         protected Player _currentTurnPlayer;        
         
-        public GameField(int fieldSize)
+        public GameField(Guid gameId, int fieldSize)
         {
             _fieldSize = fieldSize;
             field_point_tansform_x = _fieldSize / 2;
             field_point_tansform_y = field_point_tansform_x;
 
             _field = new SignPoint[_fieldSize, _fieldSize];
-            _gameId = Guid.NewGuid();
+            _gameId = gameId;
             _gameBounds = Rectangle.Empty;
-            _maxGameFieldBounds = Rectangle.FromLTRB(2 - field_point_tansform_x, 2 - field_point_tansform_y, field_point_tansform_x - 2, field_point_tansform_y - 2);
+            _maxGameFieldBounds = Rectangle.FromLTRB(1 - field_point_tansform_x, 1 - field_point_tansform_y, field_point_tansform_x - 1, field_point_tansform_y - 1);
             _gamePoints = new List<SignPoint>();
             _gameCombinations = new List<Combination>();
             _gamePlayers = new List<Player>();
@@ -59,12 +58,13 @@ namespace TicTacToe.BL.Models
 
         public Player CurrentTurnPlayer { get { return _currentTurnPlayer; } }
 
-        public Player AddPlayerToField(Guid playerId)
+        public Player AddPlayerToField(string playerId)
         {
-            if (_gameState != GameFieldState.New && _gameState != GameFieldState.Ready) { throw new Exception("Game already started"); }
-            if (_gamePlayers.Count >= MAX_PLAYERS) { throw new Exception("Maximum players count is " + MAX_PLAYERS); }
+            if (_gameState != GameFieldState.New && _gameState != GameFieldState.Ready) { throw new Exception("Game already started."); }
+            if (_gamePlayers.Any(x => x.Id.Equals(playerId, StringComparison.InvariantCultureIgnoreCase))) { throw new Exception("Player with such Id is already added."); }
 
             var player = new Player(playerId);
+
             _gamePlayers.Add(player);
 
             if (_gamePlayers.Count >= 2 && _currentTurnPlayer == null)
@@ -310,6 +310,16 @@ namespace TicTacToe.BL.Models
         }
 
         #endregion
+
+        public void Dispose()
+        {
+            _gameState = GameFieldState.Completed;
+            _gamePoints.Clear();
+            _gameCombinations.Clear();
+            _gamePlayers.Clear();
+            _currentTurnPlayer = null;
+            _field = null;            
+        }
     }
 
     public enum GameFieldState

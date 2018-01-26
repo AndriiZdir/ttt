@@ -11,7 +11,7 @@ namespace TicTacToe.Test
     {
         GameFieldTest gm;
 
-        public GameFieldTest() : base(200)
+        public GameFieldTest() : base(Guid.NewGuid(), 200)
         {
             gm = this;
         }
@@ -27,17 +27,16 @@ namespace TicTacToe.Test
         {
             Assert.AreEqual(GameFieldState.New, gm.State);
 
-            gm.AddPlayerToField(Guid.NewGuid());
+            gm.AddPlayerToField("PLAYER1");
 
             Assert.AreEqual(GameFieldState.New, gm.State);
 
-            gm.AddPlayerToField(Guid.NewGuid());
+            gm.AddPlayerToField("PLAYER2");
 
-            Assert.AreEqual(GameFieldState.Ready, gm.State);
+            Assert.AreEqual(GameFieldState.Ready, gm.State);            
 
-            gm.AddPlayerToField(Guid.NewGuid());
-
-            Assert.AreEqual(3, gm.Players.Count);
+            Assert.ThrowsException<Exception>(() => { gm.AddPlayerToField("PLAYER1"); });
+            Assert.ThrowsException<Exception>(() => { gm.AddPlayerToField("pLaYeR1"); });
         }
 
         [TestMethod]
@@ -45,15 +44,15 @@ namespace TicTacToe.Test
         {
             Assert.AreEqual(GameFieldState.New, gm.State);
 
-            var p1 = gm.AddPlayerToField(Guid.NewGuid());
+            var p1 = gm.AddPlayerToField(Guid.NewGuid().ToString());
 
             Assert.AreEqual(GameFieldState.New, gm.State);
 
-            var p2 = gm.AddPlayerToField(Guid.NewGuid());
+            var p2 = gm.AddPlayerToField(Guid.NewGuid().ToString());
 
             Assert.AreEqual(GameFieldState.Ready, gm.State);
 
-            var p3 = gm.AddPlayerToField(Guid.NewGuid());
+            var p3 = gm.AddPlayerToField(Guid.NewGuid().ToString());
 
             Assert.AreEqual(3, gm.Players.Count);
 
@@ -83,11 +82,11 @@ namespace TicTacToe.Test
         {
             Assert.ThrowsException<InvalidOperationException>(() => { gm.SetPointSign(3, 4); });
 
-            var pl1 = gm.AddPlayerToField(Guid.NewGuid());
+            var pl1 = gm.AddPlayerToField(Guid.NewGuid().ToString());
 
             Assert.ThrowsException<InvalidOperationException>(() => { gm.SetPointSign(3, 4); });
 
-            var pl2 = gm.AddPlayerToField(Guid.NewGuid());
+            var pl2 = gm.AddPlayerToField(Guid.NewGuid().ToString());
 
             var pnt0 = gm.SetPointSign(3, 4);
 
@@ -117,8 +116,8 @@ namespace TicTacToe.Test
         [TestMethod]
         public void CheckBoundsIncrease()
         {
-            gm.AddPlayerToField(Guid.NewGuid());
-            gm.AddPlayerToField(Guid.NewGuid());
+            gm.AddPlayerToField(Guid.NewGuid().ToString().ToString());
+            gm.AddPlayerToField(Guid.NewGuid().ToString().ToString());
 
             gm.SetPointSign(0, 0);
             Assert.AreEqual(Rectangle.FromLTRB(0, 0, 0, 0), gm.Bounds);
@@ -171,8 +170,8 @@ namespace TicTacToe.Test
         [TestMethod]
         public void TestGettingNeighbourPoints()
         {            
-            var pl1 = gm.AddPlayerToField(Guid.NewGuid());
-            var pl2 = gm.AddPlayerToField(Guid.NewGuid());
+            var pl1 = gm.AddPlayerToField(Guid.NewGuid().ToString().ToString());
+            var pl2 = gm.AddPlayerToField(Guid.NewGuid().ToString().ToString());
 
             Assert.AreEqual(GameFieldState.Ready, gm.State);
             
@@ -222,7 +221,7 @@ namespace TicTacToe.Test
         public void TestCombinations1()
         {
             
-            var pl1 = gm.AddPlayerToField(Guid.NewGuid());
+            var pl1 = gm.AddPlayerToField(Guid.NewGuid().ToString().ToString());
             _currentTurnPlayer = pl1;
             _gameState = GameFieldState.Ready;
             
@@ -330,8 +329,8 @@ namespace TicTacToe.Test
         public void TestPlayerCombinationsAndGameCompleting()
         {
 
-            var pl1 = gm.AddPlayerToField(Guid.NewGuid());
-            var pl2 = gm.AddPlayerToField(Guid.NewGuid());
+            var pl1 = gm.AddPlayerToField(Guid.NewGuid().ToString().ToString());
+            var pl2 = gm.AddPlayerToField(Guid.NewGuid().ToString());
 
             Assert.AreEqual(PlayerState.InGame, pl1.State);
             Assert.AreEqual(PlayerState.InGame, pl2.State);

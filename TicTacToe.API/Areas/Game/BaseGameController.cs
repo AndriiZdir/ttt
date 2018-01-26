@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TicTacToe.API.Attributes;
 using TicTacToe.API.Models;
@@ -16,6 +17,13 @@ namespace TicTacToe.API.Areas.Game
     [Authorize]
     public class BaseGameController : Controller
     {
+        protected readonly UserManager<ApplicationUser> _userManager;
+
+        public BaseGameController(UserManager<ApplicationUser> userManager)
+        {
+            _userManager = userManager;
+        }
+
         //protected IHostingEnvironment hostEnvironment { get; set; }
 
         //public BaseGameController(IHostingEnvironment hostEnvironment)

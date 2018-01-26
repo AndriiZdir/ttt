@@ -65,19 +65,12 @@ namespace TicTacToe.API
             services.AddSingleton<GameManager>();
             services.AddScoped<GameRoomService>();
 
-
             services.AddMvc();            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IDistributedCache cache)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            var serverStartTimeString = DateTime.Now.ToString();
-            byte[] val = System.Text.Encoding.UTF8.GetBytes(serverStartTimeString);
-            var cacheEntryOptions = new DistributedCacheEntryOptions()
-                .SetSlidingExpiration(TimeSpan.FromSeconds(30));
-            cache.Set("lastServerStartTime", val, cacheEntryOptions);
-
             if (env.IsDevelopment())
             {
                 app.UseBrowserLink();
