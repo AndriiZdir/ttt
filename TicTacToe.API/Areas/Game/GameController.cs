@@ -33,13 +33,21 @@ namespace TicTacToe.API.Areas.Game
 
             var gameField = _gameManager.StartNewGame(gameRoom.RoomGuid, playerIds);
 
-            return StatusResult(200, $"Starting the game...");
+            return StatusResult(200, $"Starting the game {RoomId}...");
         }
 
-        /*TODO: Create models
-         * 1. Create game data model
-         * 2. Create game settings model
-         * */
+        [HttpGet("state/{roomid}")]
+        public async Task<object> GameState(Guid RoomId)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            var gameField = _gameManager.GetGameField(RoomId);
+
+            //TODO: activate restriction ?
+            //if (!gameField.Players.Any(x => x.Id == currentUser.Id)) { return Forbid(); }
+
+            return StatusResult(200, $"Starting the game {RoomId}...");
+        }
 
         //TODO: GetGameSettings (game field size, number of players and their signs, mines quanity, frag limit, etc.)
 

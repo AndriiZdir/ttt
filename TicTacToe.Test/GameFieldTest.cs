@@ -188,7 +188,7 @@ namespace TicTacToe.Test
 
             int i = 0;
 
-            foreach (var nPoint in gm.GetNeighbourPoints(testPoint, true))
+            foreach (var nPoint in gm.GetNeighbourPoints(testPoint))
             {
                 Assert.AreEqual(testPoint.PointType, nPoint.PointType);
 
@@ -203,18 +203,6 @@ namespace TicTacToe.Test
 
             Assert.AreEqual(3, i);
 
-            i = 0;
-
-            foreach (var nPoint in gm.GetNeighbourPoints(testPoint, false))
-            {
-                var direction = testPoint ^ nPoint;
-
-                Assert.AreNotEqual(direction, CombinationDirection.Undefined);
-
-                i++;
-            }
-
-            Assert.AreEqual(6, i);
         }
 
         [TestMethod]
@@ -222,7 +210,7 @@ namespace TicTacToe.Test
         {
             
             var pl1 = gm.AddPlayerToField(Guid.NewGuid().ToString().ToString());
-            _currentTurnPlayer = pl1;
+            gm.UpdateNextTurnPlayer();            
             _gameState = GameFieldState.Ready;
             
             Assert.AreEqual(GameFieldState.Ready, gm.State);

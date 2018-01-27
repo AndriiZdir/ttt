@@ -14,6 +14,11 @@ namespace TicTacToe.BL
             _gameFields = new Dictionary<Guid, GameField>();
         }
 
+        public GameField GetGameField(Guid Id)
+        {
+            return _gameFields[Id];
+        }
+
         public GameField StartNewGame(Guid gameId, IEnumerable<string> players, int fieldSize = 40)
         {
             var gameField = new GameField(gameId, fieldSize);

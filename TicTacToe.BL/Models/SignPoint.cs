@@ -14,7 +14,7 @@ namespace TicTacToe.BL.Models
         private Dictionary<CombinationDirection, Combination> _pointCombinations;
 
         public SignPoint(Player player, Point position, SignPointType pointType)
-        {
+        {            
             _position = position;
             _player = player;
             _pointType = pointType;
@@ -40,6 +40,7 @@ namespace TicTacToe.BL.Models
             {
                 _pointType = SignPointType.MineUsed;
                 _player = detonatedBy;
+                _player.SkipNextTurn = true;
             }
             else
             {
