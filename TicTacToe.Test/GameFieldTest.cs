@@ -122,14 +122,14 @@ namespace TicTacToe.Test
             gm.SetPointSign(0, 0);
             Assert.AreEqual(Rectangle.FromLTRB(0, 0, 0, 0), gm.Bounds);
 
-            gm.SetPointSign(2, 9);
-            Assert.AreEqual(Rectangle.FromLTRB(0, 0, 2, 9), gm.Bounds);
+            gm.SetPointSign(2, 5);
+            Assert.AreEqual(Rectangle.FromLTRB(0, 0, 2, 5), gm.Bounds);
 
             gm.SetPointSign(-2, -2);
-            Assert.AreEqual(Rectangle.FromLTRB(-2, -2, 2, 9), gm.Bounds);
+            Assert.AreEqual(Rectangle.FromLTRB(-2, -2, 2, 5), gm.Bounds);
 
-            gm.SetPointSign(-10, -10);
-            Assert.AreEqual(Rectangle.FromLTRB(-10, -10, 2, 9), gm.Bounds);
+            gm.SetPointSign(-6, -6);
+            Assert.AreEqual(Rectangle.FromLTRB(-6, -6, 2, 5), gm.Bounds);
 
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => { gm.SetPointSign(-21, -20); });
         }
@@ -252,30 +252,30 @@ namespace TicTacToe.Test
 
             //Combination merging test
 
-            point = gm.SetPointSign(-1, 10);
-            point = gm.SetPointSign(0, 10);
+            point = gm.SetPointSign(-1, 5);
+            point = gm.SetPointSign(0, 5);
 
             Assert.AreEqual(9, gm.Combinations.Count);
 
-            point = gm.SetPointSign(3, 10);
+            point = gm.SetPointSign(3, 5);
 
             Assert.AreEqual(9, gm.Combinations.Count);
 
-            point = gm.SetPointSign(2, 10);
+            point = gm.SetPointSign(2, 5);
 
             Assert.AreEqual(10, gm.Combinations.Count);
 
-            point = gm.SetPointSign(1, 10);
+            point = gm.SetPointSign(1, 5);
 
             Assert.AreEqual(9, gm.Combinations.Count);
 
 
             //9 point combination
 
-            point = gm.SetPointSign(-1, 15);
-            point = gm.SetPointSign(0, 15);
-            point = gm.SetPointSign(1, 15);
-            point = gm.SetPointSign(2, 15);
+            point = gm.SetPointSign(-1, 10);
+            point = gm.SetPointSign(0, 10);
+            point = gm.SetPointSign(1, 10);
+            point = gm.SetPointSign(2, 10);
 
             Assert.AreEqual(10, gm.Combinations.Count);
 
@@ -283,10 +283,10 @@ namespace TicTacToe.Test
             Assert.AreEqual(4, ninePointCombination.Points.Count);
             Assert.AreEqual(CombinationState.Open, ninePointCombination.State);
 
-            point = gm.SetPointSign(4, 15);
-            point = gm.SetPointSign(5, 15);
-            point = gm.SetPointSign(6, 15);
-            point = gm.SetPointSign(7, 15);
+            point = gm.SetPointSign(4, 10);
+            point = gm.SetPointSign(5, 10);
+            point = gm.SetPointSign(6, 10);
+            point = gm.SetPointSign(7, 10);
 
             Assert.AreEqual(11, gm.Combinations.Count);
 
@@ -294,7 +294,7 @@ namespace TicTacToe.Test
             Assert.AreEqual(4, ninePointCombination.Points.Count);
             Assert.AreEqual(CombinationState.Open, ninePointCombination.State);
 
-            point = gm.SetPointSign(3, 15);
+            point = gm.SetPointSign(3, 10);
 
             Assert.AreEqual(10, gm.Combinations.Count);
 
@@ -303,12 +303,12 @@ namespace TicTacToe.Test
             Assert.AreEqual(9, ninePointCombination.Points.Count);
             Assert.AreEqual(CombinationState.Completed, ninePointCombination.State);
 
-            point = gm.SetPointSign(9, 15);
-            point = gm.SetPointSign(10, 15);
+            point = gm.SetPointSign(9, 10);
+            point = gm.SetPointSign(10, 10);
 
             Assert.AreEqual(11, gm.Combinations.Count);
 
-            point = gm.SetPointSign(8, 15);
+            point = gm.SetPointSign(8, 10);
 
             Assert.AreEqual(11, gm.Combinations.Count);
         }

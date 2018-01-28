@@ -122,7 +122,7 @@ namespace TicTacToe.BL.Models
 
             if (dX == 0 && dY == 0) { return CombinationDirection.SamePoint; }   //exclude current point
 
-            if (Math.Abs(dX) <= 1 && Math.Abs(dY) <= 1) //only neghbour points                
+            if (Math.Abs(dX) <= 1 && Math.Abs(dY) <= 1) //only neighbour points                
             {
                 if (dX == 0) { return CombinationDirection.Vertical; }
                 if (dY == 0) { return CombinationDirection.Horizontal; }
@@ -137,7 +137,6 @@ namespace TicTacToe.BL.Models
 
     public enum SignPointType : byte
     {
-        Empty = 0,
         Sign = 1,
 
         MineNew = 128,

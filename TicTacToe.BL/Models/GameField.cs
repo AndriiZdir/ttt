@@ -12,7 +12,7 @@ namespace TicTacToe.BL.Models
         private readonly int _fieldSize;
         private readonly int field_point_tansform_x;
         private readonly int field_point_tansform_y;
-        private readonly int max_bound_increase = 5;
+        private readonly int max_bound_increase = 6;
         #endregion
 
         private SignPoint[,] _field;
@@ -182,8 +182,7 @@ namespace TicTacToe.BL.Models
             {
                 point.ExplodeMine(_currentTurnPlayer);
             }
-            else if (point == null 
-                    || point.PointType == SignPointType.Empty)
+            else if (point == null)
             {
                 point = SetPointByCoords(x, y, _currentTurnPlayer, SignPointType.MineNew);
 
@@ -260,6 +259,7 @@ namespace TicTacToe.BL.Models
 
             _gameBounds = Rectangle.FromLTRB(left, top, right, bottom);
             _allowedMoveBounds = Rectangle.FromLTRB(left - max_bound_increase, top - max_bound_increase, right + max_bound_increase, bottom + max_bound_increase);
+            _allowedMoveBounds.Intersect(_globalGameBounds);
         }
 
         protected void CheckBoundsOutOfRange(int x, int y)

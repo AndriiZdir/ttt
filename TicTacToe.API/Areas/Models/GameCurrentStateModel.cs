@@ -8,6 +8,7 @@ namespace TicTacToe.API.Areas.Models
 {
     public class GameCurrentStateModel
     {
+
         /*
          * 
         
@@ -30,16 +31,48 @@ namespace TicTacToe.API.Areas.Models
         allowed game bounds
             -left top right bottom
 
+        game state
+
         *    
         */
 
+        public IEnumerable<GameState_Point> Points { get; set; }
+        public IEnumerable<GameState_Combination> Combinations { get; set; }
+        public IEnumerable<GameState_PlayerTable> Players { get; set; }        
+        public GameState_GameBounds MoveBounds { get; set; }
         public string CurrentTurnPlayerId { get; set; }
+        public GameFieldState GameState { get; set; }
 
         public static GameCurrentStateModel FromGameField(GameField gameField, int skipPoints = 0, int skipCombinations = 0)
         {
             var model = new GameCurrentStateModel();
 
+            model.Points = gameField.Points
+                .Where(x=> x.PointType == SignPointType.Sign || x.PointType == SignPointType.MineUsed)
+                .Select(x => new GameState_Point { X = x.Position.X, Y = x.Position.Y, PlayerId = x.Player.Id })
+                .ToList();
 
+            model.Combinations = gameField.Combinations
+                .Where(x => x.State == CombinationState.Completed)
+                .Select(x => new GameState_Combination { PlayerId = x.Points[0].Player.Id })
+                .ToList();
+
+            model.Players = gameField.Players
+                .Select(x => new GameState_PlayerTable { PlayerId = x.Id, Points = x.Points, SkipsNextTurn = x.SkipNextTurn })
+                .ToList();
+
+            model.CurrentTurnPlayerId = gameField.CurrentTurnPlayer.Id;
+
+            var moveBounds = gameField.MoveBounds;
+            model.MoveBounds = new GameState_GameBounds()
+            {
+                Left = moveBounds.Left,
+                Top = moveBounds.Top,
+                Right = moveBounds.Right,
+                Bottom = moveBounds.Bottom
+            };
+
+            model.GameState = gameField.State;
 
             return model;
         }

@@ -11,7 +11,7 @@ namespace TicTacToe.API.Areas.Models
     {
         public Guid GameId { get; set; }
 
-        public Rectangle FieldBounds { get; set; }
+        public Rectangle GlobalBounds { get; set; }
 
         public List<Player> Players { get; set; }
 
