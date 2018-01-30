@@ -6,7 +6,7 @@ namespace TicTacToe.BL.Models
 {
     public class Player
     {
-        public Player(Guid playerId)
+        public Player(string playerId)
         {
             Id = playerId;
             _mines = 1;
@@ -14,7 +14,7 @@ namespace TicTacToe.BL.Models
             State = PlayerState.InGame;
         }
 
-        public Guid Id { get; private set; }
+        public string Id { get; private set; }
 
         public PlayerState State { get; set; }
 

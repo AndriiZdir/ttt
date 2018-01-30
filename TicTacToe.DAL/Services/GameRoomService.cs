@@ -196,6 +196,8 @@ namespace TicTacToe.DAL.Services
 
             if (playerGame == null) { throw new Exception("Room not found or game already started."); }
 
+            if (playerGame.GameRoomPlayers.Count < 2) { throw new Exception("Start game: Two or more players are needed to commence the game."); }
+
             if (playerGame.GameRoomPlayers.Any(x => x.PlayerState == GameRoomPlayerState.Waiting)) { throw new Exception("Start game: Some users are not ready."); }
 
             playerGame.State = GameRoomState.Started;

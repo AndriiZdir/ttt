@@ -19,12 +19,10 @@ namespace TicTacToe.API.Areas.Game
     public class LobbyController : BaseGameController
     {
         private readonly GameRoomService _gameRoomService;
-        private readonly UserManager<ApplicationUser> _userManager;
 
-        public LobbyController(GameRoomService gameRoomService, UserManager<ApplicationUser> userManager)
+        public LobbyController(GameRoomService gameRoomService, UserManager<ApplicationUser> userManager) : base(userManager)
         {
             _gameRoomService = gameRoomService;
-            _userManager = userManager;
         }
 
         [HttpGet]
@@ -69,6 +67,14 @@ namespace TicTacToe.API.Areas.Game
             return StatusResult(200, $"Player has been joined the room {roomId}.");
         }
 
+        [HttpGet("details/{roomid}")]
+        public async Task<object> GameDetails(Guid RoomId)
+        {
+            var result = await _gameRoomService.FindRoomByGuidId(RoomId);
+            //TODO: custom model for this action
+            return EntityResult(result);
+        }
+
         [HttpGet("kick/{roomid}/{playerid}")]
         public async Task<object> KickFromRoom(Guid roomId, string playerId)
         {
@@ -103,6 +109,8 @@ namespace TicTacToe.API.Areas.Game
         [HttpGet("ready/{roomid}")]
         public async Task<object> SetAsReady(Guid RoomId)
         {
+            //TODO: Autostart after last user is ready
+
             var gameRoom = await _gameRoomService.FindRoomByGuidId(RoomId);
 
             if (gameRoom == null) { return NotFoundResult("Room with such id not found"); }
@@ -117,22 +125,5 @@ namespace TicTacToe.API.Areas.Game
             return StatusResult(200, $"Player is Ready.");
         }
 
-        [HttpGet("start/{roomid}")]
-        public async Task<object> StartGame(Guid RoomId)
-        {
-            var currentUser = await _userManager.GetUserAsync(User);
-
-            await _gameRoomService.StartGame(currentUser.Id, RoomId);
-
-            return StatusResult(200, $"Starting the game...");
-        }
-
-        //[HttpGet("details/{roomid}")]
-        //public async Task<object> GameDetails(Guid RoomId)
-        //{
-        //    var result = await _gameRoomService.GetLobbyGames(notFullOnly: true).ToListAsync();
-
-        //    return ListResult(result);
-        //}
     }
 }
