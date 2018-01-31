@@ -14,9 +14,9 @@ public class GameFieldManager : Singleton<GameFieldManager>
     // Use this for initialization
     void Start()
     {
-        for (int x = 0; x < tileCount; x++)
+        for (int x = -5; x <= 5; x++)
         {
-            for (int y = 0; y < tileCount; y++)
+            for (int y = -5; y <= 5; y++)
             {
                 SpawnFieldTile(new Vector3(x + x * tileMargin, 1, y + y * tileMargin));
             }
