@@ -7,20 +7,33 @@ public class GameFieldManager : Singleton<GameFieldManager>
     public Transform root;
     public Transform fieldTile;
     public Camera mainCamera;
+    public Animator camAnimator;
 
-    public float tileMargin = 0.1f;
+    public float tileMargin = 1f;
     public int tileCount = 20;
 
     // Use this for initialization
     void Start()
     {
+        camAnimator = mainCamera.GetComponent<Animator>();
+
         for (int x = -5; x <= 5; x++)
         {
-            for (int y = -5; y <= 5; y++)
+            for (int z = -6; z <= 5; z++)
             {
-                SpawnFieldTile(new Vector3(x + x * tileMargin, 1, y + y * tileMargin));
+                SpawnFieldTile(new Vector3(x + x * tileMargin, 1, z + z * tileMargin));
             }
         }
+
+        StartCoroutine(Zoom());
+    }
+
+    IEnumerator Zoom()
+    {
+        yield return new WaitForSeconds(3);
+        camAnimator.Play("cameraAnimation_In");
+        yield return new WaitForSeconds(3);
+        camAnimator.Play("cameraAnimation_Out");
     }
 
     // Update is called once per frame
@@ -34,6 +47,7 @@ public class GameFieldManager : Singleton<GameFieldManager>
         var obj = PoolManager.SpawnObject(Instance.fieldTile.gameObject, position, Quaternion.identity);
 
         obj.transform.parent = Instance.root;
+        obj.name = "tile_(" + position.x + ";" + position.z + ")";
         obj.SetActive(true);
 
         return obj;
