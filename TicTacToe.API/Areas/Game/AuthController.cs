@@ -21,11 +21,9 @@ namespace TicTacToe.API.Areas.Game
             _signInManager = signInManager;
         }
 
-        [HttpGet] //TODO: change to HttpPost
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string name, string password, string returnUrl = null)
+        [HttpPost]
+        public async Task<IActionResult> Login(string name, string password)
         {
-            ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
                 // This doesn't count login failures towards account lockout

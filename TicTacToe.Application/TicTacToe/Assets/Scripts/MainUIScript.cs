@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Assets.Scripts.ApiModels;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,6 +13,12 @@ public class MainUIScript : MonoBehaviour
 
     public void ClickFindGames()
     {
-        SceneManager.LoadScene("GameField", LoadSceneMode.Single);
+        StartCoroutine(Assets.Scripts.ApiService.FindGamesAsync());
+
+        var result = Assets.Scripts.ApiService.GetListResult<LobbyGameListItem>();
+
+        Debug.Log(result);
+
+        //SceneManager.LoadScene("GameField", LoadSceneMode.Single);
     }
 }
