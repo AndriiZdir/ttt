@@ -42,6 +42,8 @@ namespace TicTacToe.API
                 o.Password.RequiredUniqueChars = 0;
                 o.Password.RequireDigit = false;
                 o.Password.RequiredLength = 5;
+                o.SignIn.RequireConfirmedEmail = false;
+                o.SignIn.RequireConfirmedPhoneNumber = false;                
             })
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
@@ -53,11 +55,13 @@ namespace TicTacToe.API
                 options.TableName = "AppCache";            
             });
 
-            services.AddAuthentication().AddGoogle(googleOptions =>
-            {
-                googleOptions.ClientId = "193973661595-2vfnq05i3dd9nokeor7vdb0piuniov79.apps.googleusercontent.com";
-                googleOptions.ClientSecret = "G0w1wW7wWek6JuYpz4YaLwnS";
-            });
+            services
+                .AddAuthentication()
+                .AddGoogle(googleOptions =>
+                            {
+                                googleOptions.ClientId = "193973661595-2vfnq05i3dd9nokeor7vdb0piuniov79.apps.googleusercontent.com";
+                                googleOptions.ClientSecret = "G0w1wW7wWek6JuYpz4YaLwnS";
+                            });
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();

@@ -23,7 +23,7 @@ namespace TicTacToe.API.Areas.Game
             _gameManager = gameManager;
         }
 
-        [HttpGet("start/{roomid}")]
+        [HttpGet("start/{roomid}")] //TODO: change to HttpPost
         public async Task<object> StartGame(Guid RoomId)
         {
             var currentUser = await _userManager.GetUserAsync(User);
@@ -52,7 +52,7 @@ namespace TicTacToe.API.Areas.Game
             return EntityResult(gameState);
         }
 
-        [HttpGet("point/{roomid}/{X};{Y}")]
+        [HttpGet("point/{roomid}/{X};{Y}")] //TODO: change to HttpPost
         public async Task<object> SetPoint(Guid RoomId, int x, int y)
         {
             var currentUser = await _userManager.GetUserAsync(User);
@@ -65,7 +65,7 @@ namespace TicTacToe.API.Areas.Game
             return EntityResult(gameState);
         }
 
-        [HttpGet("mine/{roomid}/{X};{Y}")]
+        [HttpGet("mine/{roomid}/{X};{Y}")] //TODO: change to HttpPost
         public async Task<object> SetMine(Guid RoomId, int x, int y)
         {
             var currentUser = await _userManager.GetUserAsync(User);

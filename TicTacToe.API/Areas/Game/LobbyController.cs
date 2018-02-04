@@ -23,7 +23,7 @@ namespace TicTacToe.API.Areas.Game
         public LobbyController(GameRoomService gameRoomService, UserManager<ApplicationUser> userManager) : base(userManager)
         {
             _gameRoomService = gameRoomService;
-        }
+        }        
 
         [HttpGet]
         [AllowAnonymous]
@@ -38,7 +38,7 @@ namespace TicTacToe.API.Areas.Game
             return ListResult(result);
         }
 
-        [HttpGet("init")]        
+        [HttpGet("init")] //TODO: change to HttpPost
         public async Task<object> InitGame(LobbyInitGameModel model)
         {
             if (!ModelState.IsValid)
@@ -53,7 +53,7 @@ namespace TicTacToe.API.Areas.Game
             return StatusResult(200, "Game room has been created");
         }
 
-        [HttpGet("join/{roomid}")]
+        [HttpGet("join/{roomid}")] //TODO: change to HttpPost
         public async Task<object> JoinGame(Guid roomId, string password = null)
         {
             var gameRoom = await _gameRoomService.FindRoomByGuidId(roomId);
@@ -75,7 +75,7 @@ namespace TicTacToe.API.Areas.Game
             return EntityResult(result);
         }
 
-        [HttpGet("kick/{roomid}/{playerid}")]
+        [HttpGet("kick/{roomid}/{playerid}")] //TODO: change to HttpPost
         public async Task<object> KickFromRoom(Guid roomId, string playerId)
         {
             var gameRoom = await _gameRoomService.FindRoomByGuidId(roomId);
@@ -92,7 +92,7 @@ namespace TicTacToe.API.Areas.Game
             return StatusResult(200, $"Player has been kicked from the room by its creator.");
         }
 
-        [HttpGet("leave")]
+        [HttpGet("leave")] //TODO: change to HttpPost
         public async Task<object> LeaveGame()
         {
             //var gameRoom = await _gameRoomService.FindRoomByGuidId(RoomId);
@@ -106,7 +106,7 @@ namespace TicTacToe.API.Areas.Game
             return StatusResult(200, $"Player has been left all rooms.");
         }
 
-        [HttpGet("ready/{roomid}")]
+        [HttpGet("ready/{roomid}")] //TODO: change to HttpPost
         public async Task<object> SetAsReady(Guid RoomId)
         {
             //TODO: Autostart after last user is ready

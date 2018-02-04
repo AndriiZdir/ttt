@@ -10,18 +10,19 @@ public class GameFieldManager : Singleton<GameFieldManager>
     public Animator camAnimator;
 
     public float tileMargin = 1f;
-    public int tileCount = 20;
+    public int tileCount = 5;
 
     // Use this for initialization
     void Start()
     {
         camAnimator = mainCamera.GetComponent<Animator>();
 
-        for (int x = -5; x <= 5; x++)
+        for (int x = -tileCount; x <= tileCount; x++)
         {
-            for (int z = -6; z <= 5; z++)
+            for (int z = -tileCount; z <= tileCount; z++)
             {
-                SpawnFieldTile(new Vector3(x + x * tileMargin, 1, z + z * tileMargin));
+                var go = SpawnFieldTile(new Vector3(x + x * tileMargin, 1, z + z * tileMargin));
+                go.name = "tile_(" + x + ";" + z + ")";
             }
         }
 
@@ -47,7 +48,6 @@ public class GameFieldManager : Singleton<GameFieldManager>
         var obj = PoolManager.SpawnObject(Instance.fieldTile.gameObject, position, Quaternion.identity);
 
         obj.transform.parent = Instance.root;
-        obj.name = "tile_(" + position.x + ";" + position.z + ")";
         obj.SetActive(true);
 
         return obj;
