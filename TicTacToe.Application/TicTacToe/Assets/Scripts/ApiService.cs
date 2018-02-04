@@ -7,5 +7,6 @@ namespace Assets.Scripts
 {
     public class ApiService : Singleton<ApiService>
     {
+        
     }
 }

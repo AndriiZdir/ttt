@@ -9,6 +9,7 @@ public class GameFieldManager : Singleton<GameFieldManager>
     public Camera mainCamera;
     public Animator camAnimator;
 
+    public string gameFieldId;
     public float tileMargin = 1f;
     public int tileCount = 5;
 
