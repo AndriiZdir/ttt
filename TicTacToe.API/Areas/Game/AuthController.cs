@@ -13,50 +13,68 @@ using TicTacToe.DAL.Services;
 namespace TicTacToe.API.Areas.Game
 {
     [Route("api/auth")]
-    public class AuthController : Controller
+    public class AuthController : BaseGameController
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
-        protected readonly UserManager<ApplicationUser> _userManager;
 
-        public AuthController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+        public AuthController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager) : base(userManager)
         {
             _signInManager = signInManager;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Login(string name, string password)
+        [AllowAnonymous]
+        [HttpGet("signin")] //TODO: change to HttpPost
+        public async Task<object> SignIn(string name, string password)
         {
             if (ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(name, password, true, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    return Ok();
+                    return StatusResult(200, "Authorized");
                 }
                 else
                 {
-                    return Unauthorized();
+                    return StatusResult(400, "Invalid login attempt.");
                 }
             }
-
-            // If we got this far, something failed, redisplay form
+            
             return Unauthorized();
         }
 
-        [Authorize]
-        [HttpGet("info")]        
-        public async Task<IActionResult> CurrentUserInfo()
+        [AllowAnonymous]
+        [HttpGet("signup")] //TODO: change to HttpPost
+        public async Task<object> SignUp(string name, string password)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = new ApplicationUser { UserName = name };
+                var result = await _userManager.CreateAsync(user, password);                
+                if (result.Succeeded)
+                {
+                    return StatusResult(200, "Registered. Please, sign in.");
+                }
+                else
+                {
+                    return StatusResult(400, result.Errors.FirstOrDefault()?.Description);
+                }
+            }
+
+            return Unauthorized();
+        }
+
+        
+        [HttpGet("info")]
+        public async Task<object> CurrentUserInfo()
         {
             var currentUser = await _userManager.GetUserAsync(User);
 
             if (currentUser == null)
             {
-                return Forbid();
+                return StatusResult(403, "Please, sign in.");
             }
 
-            return Ok(new { currentUser.UserName, currentUser.Id });
+            return EntityResult(new { currentUser.UserName, currentUser.Id });
         }
     }
 }

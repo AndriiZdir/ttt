@@ -36,9 +36,13 @@ public class MainUIScript : MonoBehaviour
 
             foreach (var game in gameList)
             {
+                string gameId = game.GameId;
+
                 var newButton = GameObject.Instantiate(gameListButton, gameListContent.transform);
-                newButton.name = game.GameId;
+                newButton.name = gameId;
                 newButton.transform.localScale = Vector3.one;
+                
+                newButton.onClick.AddListener(() => { Debug.Log("Connect to " + gameId); });
             }
 
             gameListPanel.SetActive(true);
