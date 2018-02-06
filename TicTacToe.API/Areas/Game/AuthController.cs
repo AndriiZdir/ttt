@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -15,8 +16,9 @@ namespace TicTacToe.API.Areas.Game
     public class AuthController : Controller
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
+        protected readonly UserManager<ApplicationUser> _userManager;
 
-        public AuthController(SignInManager<ApplicationUser> signInManager)
+        public AuthController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
         {
             _signInManager = signInManager;
         }
@@ -41,6 +43,20 @@ namespace TicTacToe.API.Areas.Game
 
             // If we got this far, something failed, redisplay form
             return Unauthorized();
+        }
+
+        [Authorize]
+        [HttpGet("info")]        
+        public async Task<IActionResult> CurrentUserInfo()
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if (currentUser == null)
+            {
+                return Forbid();
+            }
+
+            return Ok(new { currentUser.UserName, currentUser.Id });
         }
     }
 }
