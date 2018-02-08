@@ -23,7 +23,7 @@ namespace TicTacToe.API.Areas.Game
         }
 
         [AllowAnonymous]
-        [HttpGet("signin")] //TODO: change to HttpPost
+        [HttpPost("signin")]
         public async Task<object> SignIn(string name, string password)
         {
             if (ModelState.IsValid)
@@ -63,7 +63,7 @@ namespace TicTacToe.API.Areas.Game
             return Unauthorized();
         }
 
-        
+
         [HttpGet("info")]
         public async Task<object> CurrentUserInfo()
         {
@@ -74,7 +74,7 @@ namespace TicTacToe.API.Areas.Game
                 return StatusResult(403, "Please, sign in.");
             }
 
-            return EntityResult(new { currentUser.UserName, currentUser.Id });
+            return EntityResult(new { PlayerName = currentUser.UserName, PlayerId = currentUser.Id });
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Collections;
 using System.Net;
 using Assets.Scripts.ApiModels;
 using Newtonsoft.Json;
+using System.IO;
 
 namespace Assets.Scripts
 {
@@ -15,15 +16,18 @@ namespace Assets.Scripts
     {
         public string APIEndpoint = "https://localhost:44319";
 
-        private static KeyValuePair<string, string> cookieHeader;
+        public const string COOKIE_HEADER_NAME = "cookie";
+        private static readonly string authInfoFile = Application.persistentDataPath + "/auth.json";
 
-        public static IEnumerator LoginAsync(Action<IEnumerable<LobbyGameListItem>> callback, string name, string password)  //api/auth
+        public static GameAuthModel PlayerInfo { get; private set; }
+
+        public static IEnumerator LoginAsync(Action<bool> callback, string name, string password)  //api/auth/signin
         {
             WWWForm formData = new WWWForm();
             formData.AddField("name", name);
             formData.AddField("password", password);
 
-            using (UnityWebRequest www = UnityWebRequest.Post(GetFullUrl("/api/auth"), formData))
+            using (UnityWebRequest www = UnityWebRequest.Post(GetFullUrl("/api/auth/signin"), formData))
             {
                 yield return www.SendWebRequest();
 
@@ -34,19 +38,85 @@ namespace Assets.Scripts
                 else
                 {
                     if (www.responseCode == 200)
-                    {
+                    {                       
 
-                        var result = GetListResult<LobbyGameListItem>(www.downloadHandler.text);
+                        if (PlayerInfo == null)
+                        {
+                            PlayerInfo = new GameAuthModel();
+                        }
+
+                        PlayerInfo.AuthCookie = www.GetResponseHeader(COOKIE_HEADER_NAME);
+
+                        if (callback != null)
+                        {
+                            callback(true);
+                        }
+                    }
+                    else
+                    {
+                        if (callback != null)
+                        {
+                            callback(false);
+                        }
+
+                        Debug.LogWarning(www.responseCode);
+                    }
+                }
+            }
+
+        }
+
+        public static IEnumerator GetPlayerInfoAsync(Action<AuthPlayerInfoResultModel> callback)  //api/auth/info
+        {
+            ReadAuthorization();
+
+            if (PlayerInfo == null)
+            {
+                if (callback != null)
+                {
+                    callback(null);
+                }
+
+                yield break;
+            }
+
+            using (UnityWebRequest www = UnityWebRequest.Get(GetFullUrl("/api/auth/info")))
+            {
+                www.SetRequestHeader(COOKIE_HEADER_NAME, PlayerInfo.AuthCookie);
+
+                yield return www.SendWebRequest();
+
+                if (www.isNetworkError || www.isHttpError)
+                {
+                    Debug.LogWarning(www.error);
+                }
+                else
+                {
+                    if (www.responseCode == 200)
+                    {
+                        var result = GetEntityResult<AuthPlayerInfoResultModel>(www.downloadHandler.text);
+
+                        PlayerInfo.PlayerId = result.PlayerId;
+                        PlayerInfo.PlayerName = result.PlayerName;
+
+                        SaveAuthorization();
 
                         if (callback != null)
                         {
                             callback(result);
                         }
-
-                        yield break;
                     }
+                    else
+                    {
+                        if (callback != null)
+                        {
+                            callback(null);
+                        }
 
-                    Debug.LogWarning(www.responseCode);
+                        PlayerInfo = null;
+
+                        Debug.LogWarning(www.responseCode);
+                    }
                 }
             }
 
@@ -61,9 +131,9 @@ namespace Assets.Scripts
 
             using (UnityWebRequest www = UnityWebRequest.Get(GetFullUrl("/api/lobby" + search)))
             {
-                if (cookieHeader.Value != null)
+                if (PlayerInfo != null)
                 {
-                    www.SetRequestHeader(cookieHeader.Key, cookieHeader.Value);
+                    www.SetRequestHeader(COOKIE_HEADER_NAME, PlayerInfo.AuthCookie);
                 }
 
                 yield return www.SendWebRequest();
@@ -109,6 +179,22 @@ namespace Assets.Scripts
         private static string GetFullUrl(string path)
         {            
             return Instance.APIEndpoint + path;
+        }
+
+        private static void SaveAuthorization()
+        {
+            var json = JsonConvert.SerializeObject(PlayerInfo);
+
+            File.WriteAllText(authInfoFile, json);
+        }
+
+        public static bool ReadAuthorization()
+        {
+            var json = File.ReadAllText(authInfoFile);
+
+            PlayerInfo = JsonConvert.DeserializeObject<GameAuthModel>(json);
+
+            return (PlayerInfo != null && PlayerInfo.AuthCookie != null);
         }
     }
 }
