@@ -6,10 +6,29 @@ namespace TicTacToe.DAL.Enums
 {
     public enum GameRoomPlayerSign : byte
     {
+        /// <summary>
+        /// X
+        /// </summary>
         Cross,
+
+        /// <summary>
+        /// O
+        /// </summary>
         Zero,
-        Zed,    //Z
-        Aitch,  //H
-        Wy  //Y        
+
+        /// <summary>
+        /// Z
+        /// </summary>
+        Zed,
+
+        /// <summary>
+        /// H
+        /// </summary>
+        Aitch,
+
+        /// <summary>
+        /// Y
+        /// </summary>
+        Wy         
     }
 }

@@ -70,9 +70,14 @@ namespace TicTacToe.API.Areas.Game
         [HttpGet("details/{roomid}")]
         public async Task<object> GameDetails(Guid RoomId)
         {
-            var result = await _gameRoomService.FindRoomByGuidId(RoomId);
+            var gameRoom = await _gameRoomService.FindRoomByGuidId(RoomId);
+
+            if (gameRoom == null) { return NotFoundResult("Room with such id not found"); }
+
+            var model = new LobbyGameDetailsModel();
+
             //TODO: custom model for this action
-            return EntityResult(result);
+            return EntityResult(model);
         }
 
         [HttpGet("kick/{roomid}/{playerid}")] //TODO: change to HttpPost
