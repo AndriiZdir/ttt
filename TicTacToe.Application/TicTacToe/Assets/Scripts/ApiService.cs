@@ -16,10 +16,15 @@ namespace Assets.Scripts
     {
         public string APIEndpoint = "https://localhost:44319";
 
-        public const string COOKIE_HEADER_NAME = "cookie";
-        private static readonly string authInfoFile = Application.persistentDataPath + "/auth.json";
+        public const string COOKIE_HEADER_NAME = "set-cookie";
+        private string authInfoFile;         
 
-        public static GameAuthModel PlayerInfo { get; private set; }
+        public GameAuthModel PlayerInfo { get; private set; }
+
+        private void Awake()
+        {
+            authInfoFile = Application.persistentDataPath + "/auth.json";
+        }
 
         public static IEnumerator LoginAsync(Action<bool> callback, string name, string password)  //api/auth/signin
         {
@@ -34,34 +39,31 @@ namespace Assets.Scripts
                 if (www.isNetworkError || www.isHttpError)
                 {
                     Debug.LogWarning(www.error);
-                }
-                else
-                {
-                    if (www.responseCode == 200)
-                    {                       
 
-                        if (PlayerInfo == null)
-                        {
-                            PlayerInfo = new GameAuthModel();
-                        }
-
-                        PlayerInfo.AuthCookie = www.GetResponseHeader(COOKIE_HEADER_NAME);
-
-                        if (callback != null)
-                        {
-                            callback(true);
-                        }
-                    }
-                    else
+                    if (callback != null)
                     {
-                        if (callback != null)
-                        {
-                            callback(false);
-                        }
-
-                        Debug.LogWarning(www.responseCode);
+                        callback(false);
                     }
+
+                    yield break;
                 }
+
+                if (Instance.PlayerInfo == null)
+                {
+                    Instance.PlayerInfo = new GameAuthModel();
+                }
+
+                Instance.PlayerInfo.AuthCookie = www.GetResponseHeader(COOKIE_HEADER_NAME);
+
+                Debug.Log(ApiService.Instance.PlayerInfo.AuthCookie);
+
+                SaveAuthorization();
+
+                if (callback != null)
+                {
+                    callback(true);
+                }
+
             }
 
         }
@@ -70,7 +72,7 @@ namespace Assets.Scripts
         {
             ReadAuthorization();
 
-            if (PlayerInfo == null)
+            if (Instance.PlayerInfo == null)
             {
                 if (callback != null)
                 {
@@ -82,40 +84,33 @@ namespace Assets.Scripts
 
             using (UnityWebRequest www = UnityWebRequest.Get(GetFullUrl("/api/auth/info")))
             {
-                www.SetRequestHeader(COOKIE_HEADER_NAME, PlayerInfo.AuthCookie);
+                www.SetRequestHeader(COOKIE_HEADER_NAME, Instance.PlayerInfo.AuthCookie);
 
                 yield return www.SendWebRequest();
 
                 if (www.isNetworkError || www.isHttpError)
                 {
-                    Debug.LogWarning(www.error);
+                    if (callback != null)
+                    {
+                        callback(null);
+                    }
+
+                    Instance.PlayerInfo = null;
+
+                    Debug.LogWarning(www.responseCode);
                 }
                 else
                 {
-                    if (www.responseCode == 200)
+                    var result = GetEntityResult<AuthPlayerInfoResultModel>(www.downloadHandler.text);
+
+                    Instance.PlayerInfo.PlayerId = result.PlayerId;
+                    Instance.PlayerInfo.PlayerName = result.PlayerName;
+
+                    SaveAuthorization();
+
+                    if (callback != null)
                     {
-                        var result = GetEntityResult<AuthPlayerInfoResultModel>(www.downloadHandler.text);
-
-                        PlayerInfo.PlayerId = result.PlayerId;
-                        PlayerInfo.PlayerName = result.PlayerName;
-
-                        SaveAuthorization();
-
-                        if (callback != null)
-                        {
-                            callback(result);
-                        }
-                    }
-                    else
-                    {
-                        if (callback != null)
-                        {
-                            callback(null);
-                        }
-
-                        PlayerInfo = null;
-
-                        Debug.LogWarning(www.responseCode);
+                        callback(result);
                     }
                 }
             }
@@ -131,9 +126,9 @@ namespace Assets.Scripts
 
             using (UnityWebRequest www = UnityWebRequest.Get(GetFullUrl("/api/lobby" + search)))
             {
-                if (PlayerInfo != null)
+                if (Instance.PlayerInfo != null)
                 {
-                    www.SetRequestHeader(COOKIE_HEADER_NAME, PlayerInfo.AuthCookie);
+                    www.SetRequestHeader(COOKIE_HEADER_NAME, Instance.PlayerInfo.AuthCookie);
                 }
 
                 yield return www.SendWebRequest();
@@ -141,23 +136,20 @@ namespace Assets.Scripts
                 if (www.isNetworkError || www.isHttpError)
                 {
                     Debug.LogWarning(www.error);
-                }
-                else
-                {
-                    if (www.responseCode == 200)
+
+                    if (callback != null)
                     {
-
-                        var result = GetListResult<LobbyGameListItem>(www.downloadHandler.text);
-
-                        if (callback != null)
-                        {
-                            callback(result);
-                        }
-
-                        yield break;
+                        callback(null);
                     }
 
-                    Debug.LogWarning(www.responseCode);
+                    yield break;
+                }
+
+                var result = GetListResult<LobbyGameListItem>(www.downloadHandler.text);
+
+                if (callback != null)
+                {
+                    callback(result);
                 }
             }
 
@@ -183,18 +175,20 @@ namespace Assets.Scripts
 
         private static void SaveAuthorization()
         {
-            var json = JsonConvert.SerializeObject(PlayerInfo);
+            var json = JsonConvert.SerializeObject(Instance.PlayerInfo);
 
-            File.WriteAllText(authInfoFile, json);
+            File.WriteAllText(Instance.authInfoFile, json);
         }
 
         public static bool ReadAuthorization()
         {
-            var json = File.ReadAllText(authInfoFile);
+            if (!File.Exists(Instance.authInfoFile)) { return false; }
 
-            PlayerInfo = JsonConvert.DeserializeObject<GameAuthModel>(json);
+            var json = File.ReadAllText(Instance.authInfoFile);
 
-            return (PlayerInfo != null && PlayerInfo.AuthCookie != null);
+            Instance.PlayerInfo = JsonConvert.DeserializeObject<GameAuthModel>(json);
+
+            return (Instance.PlayerInfo != null && Instance.PlayerInfo.AuthCookie != null);
         }
     }
 }

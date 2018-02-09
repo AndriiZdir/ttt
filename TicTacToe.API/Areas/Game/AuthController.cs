@@ -31,11 +31,11 @@ namespace TicTacToe.API.Areas.Game
                 var result = await _signInManager.PasswordSignInAsync(name, password, true, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    return StatusResult(200, "Authorized");
+                    return Ok("Authorized");
                 }
                 else
                 {
-                    return StatusResult(400, "Invalid login attempt.");
+                    return BadRequest("Invalid login attempt.");
                 }
             }
             
