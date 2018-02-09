@@ -37,6 +37,7 @@ namespace TicTacToe.API
 
             services.AddIdentity<ApplicationUser, IdentityRole>(o => 
             {
+                o.Password.RequireLowercase = false;
                 o.Password.RequireNonAlphanumeric = false;
                 o.Password.RequireUppercase = false;
                 o.Password.RequiredUniqueChars = 0;

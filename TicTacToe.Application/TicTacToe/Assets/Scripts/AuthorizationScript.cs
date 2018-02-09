@@ -17,40 +17,69 @@ public class AuthorizationScript : MonoBehaviour
     public InputField signPassword;
 
     private void Start()
-    {       
+    {
 
-        Action<AuthPlayerInfoResultModel> callback = (x) => {
-            playerName.text = x.PlayerName;
-            ShowAuthWidget();
-        };
+        var isAuthenticated = ApiService.Instance.ReadAuthorization();
 
-        StartCoroutine(Assets.Scripts.ApiService.GetPlayerInfoAsync(callback));
-        
+        if (isAuthenticated)
+        {
+            Action<AuthPlayerInfoResultModel> callback = (playerInfoResult) =>
+            {
+                UpdateAuthWidget();
+            };
+
+            StartCoroutine(ApiService.GetPlayerInfoAsync(callback));
+        }
+        else
+        {
+            UpdateAuthWidget();
+        }
+
     }
 
     public void SignIn()
-    {        
+    {
 
-        StartCoroutine(Assets.Scripts.ApiService.LoginAsync((x) => { if (x) { sigInPanel.SetActive(false); } }, signName.text, signPassword.text));
+        StartCoroutine(ApiService.SignInAsync((signInResult) =>
+        {
+            if (signInResult)
+            {
+                Action<AuthPlayerInfoResultModel> callback = (playerInfoResult) =>
+                {
+                    UpdateAuthWidget();
+                    HideSigInPanel();
+                };
 
-        Action<AuthPlayerInfoResultModel> callback = (x) => {            
-            ShowAuthWidget();
-        };
-
-        StartCoroutine(Assets.Scripts.ApiService.GetPlayerInfoAsync(callback));
+                StartCoroutine(ApiService.GetPlayerInfoAsync(callback));
+            }
+        },
+        signName.text, signPassword.text));
     }
 
     public void SignUp()
     {
-        throw new System.NotImplementedException("SignOut");
+        StartCoroutine(ApiService.SignUpAsync((signUpResult) =>
+        {
+            if (signUpResult)
+            {
+                SignIn();
+            }
+        },
+        signName.text, signPassword.text));
     }
 
     public void SignOut()
     {
-        throw new System.NotImplementedException("SignOut");
+        StartCoroutine(ApiService.SignOutAsync((signOutResult) =>
+        {
+            if (signOutResult)
+            {
+                UpdateAuthWidget();
+            }
+        }));
     }
 
-    public void ShowAuthWidget()
+    public void UpdateAuthWidget()
     {
         var ifNotSignedIn = authWidget.transform.GetChild(0);
         var ifSignedIn = authWidget.transform.GetChild(1);
@@ -60,29 +89,30 @@ public class AuthorizationScript : MonoBehaviour
             authWidget.SetActive(true);
         }
 
-        if(ApiService.Instance.PlayerInfo == null)
+        if (!ApiService.Instance.IsAuthenticated())
         {
             playerName.text = null;
             ifSignedIn.gameObject.SetActive(false);
             ifNotSignedIn.gameObject.SetActive(true);
         }
         else
-        {            
+        {
             playerName.text = ApiService.Instance.PlayerInfo.PlayerName;
             ifSignedIn.gameObject.SetActive(true);
             ifNotSignedIn.gameObject.SetActive(false);
         }
-
-
     }
 
     public void ShowSigInPanel()
     {
+        signName.text = ApiService.Instance.PlayerInfo.PlayerName;
         sigInPanel.SetActive(true);
     }
 
     public void HideSigInPanel()
     {
         sigInPanel.SetActive(false);
+        signName.text = null;
+        signPassword.text = null;
     }
 }

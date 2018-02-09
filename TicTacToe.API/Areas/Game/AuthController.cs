@@ -43,7 +43,7 @@ namespace TicTacToe.API.Areas.Game
         }
 
         [AllowAnonymous]
-        [HttpGet("signup")] //TODO: change to HttpPost
+        [HttpPost("signup")]
         public async Task<object> SignUp(string name, string password)
         {
             if (ModelState.IsValid)
@@ -63,6 +63,12 @@ namespace TicTacToe.API.Areas.Game
             return Unauthorized();
         }
 
+        [HttpPost("signout")]
+        public async Task<IActionResult> SignOut()
+        {
+            await _signInManager.SignOutAsync();
+            return Ok();
+        }
 
         [HttpGet("info")]
         public async Task<object> CurrentUserInfo()

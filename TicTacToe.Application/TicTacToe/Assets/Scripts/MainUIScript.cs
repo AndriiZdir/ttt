@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts;
 using Assets.Scripts.ApiModels;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +11,10 @@ using UnityEngine.UI;
 public class MainUIScript : MonoBehaviour
 {
     public GameObject mainPanel = null;
-    public GameObject gameListPanel = null;
+    public GameObject gameListPanel = null;    
     public GameObject gameListContent = null;
     public Button gameListButton = null;
+    public UIActiveGameScript activeGameItem = null;
 
     private void Start()
     {
@@ -38,18 +40,36 @@ public class MainUIScript : MonoBehaviour
             {
                 string gameId = game.GameId;
 
-                var newButton = GameObject.Instantiate(gameListButton, gameListContent.transform);
-                newButton.name = gameId;
-                newButton.transform.localScale = Vector3.one;
+                var item = GameObject.Instantiate(activeGameItem, gameListContent.transform);
+                item.txtGameId.text = "Game #" + gameId.Substring(24);
+                item.txtUsers.text = string.Format("{0}/{1}", game.JoinedUsers, game.MaxUsers);
+                item.txtBombs.text = game.MinesQuantity.ToString();
+                item.IsWithPassword.SetActive(game.IsWithPassword);
+                item.transform.localScale = Vector3.one;
                 
-                newButton.onClick.AddListener(() => { Debug.Log("Connect to " + gameId); });
+                item.me.onClick.AddListener(() => { Debug.Log("Connect to " + gameId); });
             }
 
             gameListPanel.SetActive(true);
+
+            Debug.Log("Games Found: " + gameList.Count());
         };
 
         StartCoroutine(ApiService.FindGamesAsync(callback));
 
         //SceneManager.LoadScene("GameField", LoadSceneMode.Single);
+    }
+
+    public void OnScroll(Vector2 value)
+    {
+        if (value.y > 1)
+        {
+            Debug.Log("Load: " + value.y);
+        }
+    }
+
+    public void OnScroll2(float value)
+    {
+        Debug.Log("Load: " + value);
     }
 }

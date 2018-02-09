@@ -16,7 +16,9 @@ namespace Assets.Scripts
     {
         public string APIEndpoint = "https://localhost:44319";
 
-        public const string COOKIE_HEADER_NAME = "set-cookie";
+        public const string COOKIE_HEADER_NAME = "cookie";
+        public const string SETCOOKIE_HEADER_NAME = "set-cookie";
+
         private string authInfoFile;         
 
         public GameAuthModel PlayerInfo { get; private set; }
@@ -26,7 +28,7 @@ namespace Assets.Scripts
             authInfoFile = Application.persistentDataPath + "/auth.json";
         }
 
-        public static IEnumerator LoginAsync(Action<bool> callback, string name, string password)  //api/auth/signin
+        public static IEnumerator SignInAsync(Action<bool> callback, string name, string password)  //api/auth/signin
         {
             WWWForm formData = new WWWForm();
             formData.AddField("name", name);
@@ -36,6 +38,8 @@ namespace Assets.Scripts
             {
                 yield return www.SendWebRequest();
 
+                Debug.LogWarning(www.responseCode);
+
                 if (www.isNetworkError || www.isHttpError)
                 {
                     Debug.LogWarning(www.error);
@@ -44,34 +48,103 @@ namespace Assets.Scripts
                     {
                         callback(false);
                     }
-
-                    yield break;
                 }
-
-                if (Instance.PlayerInfo == null)
+                else
                 {
-                    Instance.PlayerInfo = new GameAuthModel();
+                    if (Instance.PlayerInfo == null)
+                    {
+                        Instance.PlayerInfo = new GameAuthModel();
+                    }
+
+                    var cookieValue = www.GetResponseHeader(SETCOOKIE_HEADER_NAME);
+
+                    Instance.PlayerInfo.AuthCookie = cookieValue.Split(';')[0];
+
+                    Debug.Log(ApiService.Instance.PlayerInfo.AuthCookie);
+
+                    Instance.SaveAuthorization();
+
+                    if (callback != null)
+                    {
+                        callback(true);
+                    }
                 }
-
-                Instance.PlayerInfo.AuthCookie = www.GetResponseHeader(COOKIE_HEADER_NAME);
-
-                Debug.Log(ApiService.Instance.PlayerInfo.AuthCookie);
-
-                SaveAuthorization();
-
-                if (callback != null)
-                {
-                    callback(true);
-                }
-
             }
 
         }
 
+        public static IEnumerator SignUpAsync(Action<bool> callback, string name, string password)  //api/auth/signup
+        {
+            WWWForm formData = new WWWForm();
+            formData.AddField("name", name);
+            formData.AddField("password", password);
+
+            using (UnityWebRequest www = UnityWebRequest.Post(GetFullUrl("/api/auth/signup"), formData))
+            {
+                yield return www.SendWebRequest();
+
+                Debug.LogWarning(www.responseCode);
+
+                if (www.isNetworkError || www.isHttpError)
+                {
+                    Debug.LogWarning(www.error);
+
+                    if (callback != null)
+                    {
+                        callback(false);
+                    }
+                }
+                else
+                {
+                    if (callback != null)
+                    {
+                        callback(true);
+                    }
+                }
+            }
+
+        }
+
+        public static IEnumerator SignOutAsync(Action<bool> callback)  //api/auth/signout
+        {
+            using (UnityWebRequest www = UnityWebRequest.Post(GetFullUrl("/api/auth/signout"), string.Empty))
+            {
+                www.SetRequestHeader(COOKIE_HEADER_NAME, Instance.PlayerInfo.AuthCookie);
+
+                yield return www.SendWebRequest();
+
+                Debug.LogWarning(www.responseCode);
+
+                if (www.isNetworkError || www.isHttpError)
+                {
+                    Debug.LogWarning(www.error);
+
+                    if (callback != null)
+                    {
+                        callback(false);
+                    }
+                }
+                else
+                {
+                    if (Instance.PlayerInfo != null)
+                    {
+                        Instance.PlayerInfo.AuthCookie = null;
+
+                        Instance.SaveAuthorization();
+                    }                   
+
+                    if (callback != null)
+                    {
+                        callback(true);
+                    }
+                }
+            }
+
+        }
+
+
         public static IEnumerator GetPlayerInfoAsync(Action<AuthPlayerInfoResultModel> callback)  //api/auth/info
         {
-            ReadAuthorization();
-
             if (Instance.PlayerInfo == null)
             {
                 if (callback != null)
@@ -106,7 +179,7 @@ namespace Assets.Scripts
                     Instance.PlayerInfo.PlayerId = result.PlayerId;
                     Instance.PlayerInfo.PlayerName = result.PlayerName;
 
-                    SaveAuthorization();
+                    Instance.SaveAuthorization();
 
                     if (callback != null)
                     {
@@ -173,22 +246,27 @@ namespace Assets.Scripts
             return Instance.APIEndpoint + path;
         }
 
-        private static void SaveAuthorization()
+        private void SaveAuthorization()
         {
             var json = JsonConvert.SerializeObject(Instance.PlayerInfo);
 
-            File.WriteAllText(Instance.authInfoFile, json);
+            File.WriteAllText(authInfoFile, json);
         }
 
-        public static bool ReadAuthorization()
+        public bool ReadAuthorization()
         {
-            if (!File.Exists(Instance.authInfoFile)) { return false; }
+            if (!File.Exists(authInfoFile)) { return false; }
 
-            var json = File.ReadAllText(Instance.authInfoFile);
+            var json = File.ReadAllText(authInfoFile);
 
-            Instance.PlayerInfo = JsonConvert.DeserializeObject<GameAuthModel>(json);
+            PlayerInfo = JsonConvert.DeserializeObject<GameAuthModel>(json);
 
-            return (Instance.PlayerInfo != null && Instance.PlayerInfo.AuthCookie != null);
+            return IsAuthenticated();
+        }
+
+        public bool IsAuthenticated()
+        {
+            return (PlayerInfo != null && PlayerInfo.AuthCookie != null);
         }
     }
 }
