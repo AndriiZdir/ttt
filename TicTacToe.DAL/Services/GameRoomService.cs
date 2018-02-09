@@ -44,9 +44,17 @@ namespace TicTacToe.DAL.Services
             return result;
         }
 
-        public Task<GameRoom> FindRoomByGuidId(Guid roomId)
+        public Task<GameRoom> FindRoomByGuidId(Guid roomId, bool includePlayers = false)
         {
-            return _dbContext.GameRooms.SingleOrDefaultAsync(x => x.RoomGuid == roomId);
+            IQueryable<GameRoom> dbSet = _dbContext.GameRooms;
+
+            if (includePlayers)
+            {
+                dbSet = dbSet.Include(x => x.GameRoomPlayers);
+            }
+
+            return dbSet.SingleOrDefaultAsync(x => x.RoomGuid == roomId);
+            
         }
 
         public async Task<GameRoom> CreateGameRoom(string creatorUserId, int maxPlayers = 2, int minesQuantity = 1, bool isHidden = false, string password = null)
