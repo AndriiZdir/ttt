@@ -9,6 +9,7 @@ namespace TicTacToe.API.Areas.Models
     public class LobbyGameDetailsModel
     {
         public string GameId { get; set; }
+        public string CreatedBy { get; set; }
         public int MaxPlayers { get; set; }
         public int JoinedPlayers { get; set; }
         public int MinesQuantity { get; set; }
@@ -27,22 +28,24 @@ namespace TicTacToe.API.Areas.Models
 
         public static LobbyGameDetailsModel LoadFromGameRoom(GameRoom gameRoom)
         {
-            var model = new LobbyGameDetailsModel();
-
-            model.GameId = gameRoom.RoomGuid.ToString();
-            model.MaxPlayers = gameRoom.MaxPlayers;
-            model.JoinedPlayers = gameRoom.GameRoomPlayers.Count;
-            model.MinesQuantity = gameRoom.MinesQuantity;
-            model.IsWithPassword = (gameRoom.Password != null);
-
-            model.Players = gameRoom.GameRoomPlayers.Select(x => new LobbyGameDetails_Player
+            var model = new LobbyGameDetailsModel
             {
-                PlayerId = x.UserId,
-                PlayerName = x.Player.UserName,
-                Sign = (byte)x.PlayerSign,
-                IsReady = (x.PlayerState == DAL.Enums.GameRoomPlayerState.Ready),
-                IsCreator = (x.PlayerType == DAL.Enums.GameRoomPlayerType.Creator)
-            }).ToList();
+                GameId = gameRoom.RoomGuid.ToString(),
+                CreatedBy = gameRoom.CreateUser,
+                MaxPlayers = gameRoom.MaxPlayers,
+                JoinedPlayers = gameRoom.GameRoomPlayers.Count,
+                MinesQuantity = gameRoom.MinesQuantity,
+                IsWithPassword = (gameRoom.Password != null),
+
+                Players = gameRoom.GameRoomPlayers.Select(x => new LobbyGameDetails_Player
+                {
+                    PlayerId = x.UserId,
+                    PlayerName = x.Player.UserName,
+                    Sign = (byte)x.PlayerSign,
+                    IsReady = (x.PlayerState == DAL.Enums.GameRoomPlayerState.Ready),
+                    IsCreator = (x.PlayerType == DAL.Enums.GameRoomPlayerType.Creator)
+                }).ToList()
+            };
 
             return model;
         }

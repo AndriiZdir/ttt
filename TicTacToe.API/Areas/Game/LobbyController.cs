@@ -50,7 +50,7 @@ namespace TicTacToe.API.Areas.Game
 
             var result = await _gameRoomService.CreateGameRoom(currentUser.Id, model.MaxPlayers, model.MinesQuantity, false, model.Password);
             
-            return StatusResult(200, "Game room has been created");
+            return Ok("Game room has been created");
         }
 
         [HttpPost("join/{roomid}")]
@@ -60,19 +60,23 @@ namespace TicTacToe.API.Areas.Game
 
             if (gameRoom == null) { return NotFoundResult("Room with such id not found"); }
 
+            if (gameRoom.Password != password) { return Forbid("Wrong password"); }
+
             var currentUser = await _userManager.GetUserAsync(User);
 
             var gameRoomPlayer = await _gameRoomService.JoinPlayerToGameRoom(currentUser.Id, gameRoom.Id, password: password);
 
-            return StatusResult(200, $"Player has been joined the room {roomId}.");
+            return Ok("Player has been joined the room");
         }
 
         [HttpGet("details/{roomid}")]
-        public async Task<object> GameDetails(Guid RoomId)
+        public async Task<object> GameDetails(Guid roomId, string password = null)
         {
-            var gameRoom = await _gameRoomService.FindRoomByGuidId(RoomId, true);
+            var gameRoom = await _gameRoomService.FindRoomByGuidId(roomId, true);
 
             if (gameRoom == null) { return NotFoundResult("Room with such id not found"); }
+
+            if (gameRoom.Password != password) { return Forbid("Wrong password"); }
 
             var model = LobbyGameDetailsModel.LoadFromGameRoom(gameRoom);
             
@@ -89,11 +93,11 @@ namespace TicTacToe.API.Areas.Game
             var currentUser = await _userManager.GetUserAsync(User);
 
             if (gameRoom.CreateUser != currentUser.Id 
-                && gameRoom.State == GameRoomState.New) { return StatusResult(400, "You have no permission to do that."); }
+                && gameRoom.State == GameRoomState.New) { return Forbid("You have no permission to do that."); }
 
             await _gameRoomService.KickPlayerFromGameRoom(playerId, gameRoom.Id);
 
-            return StatusResult(200, $"Player has been kicked from the room by its creator.");
+            return Ok("Player has been kicked from the room by its creator");
         }
 
         [HttpPost("leave")]
@@ -107,7 +111,7 @@ namespace TicTacToe.API.Areas.Game
 
             await _gameRoomService.RemovePlayerFromGameRoom(currentUser.Id);
 
-            return StatusResult(200, $"Player has been left all rooms.");
+            return Ok("Player has been left all rooms");
         }
 
         [HttpPost("ready/{roomid}")]
@@ -120,13 +124,13 @@ namespace TicTacToe.API.Areas.Game
             if (gameRoom == null) { return NotFoundResult("Room with such id not found"); }
 
             if (gameRoom.State == GameRoomState.Started
-                || gameRoom.State == GameRoomState.Closed) { return StatusResult(400, "Unable to set player status in this room."); }
+                || gameRoom.State == GameRoomState.Closed) { return BadRequest("Unable to set player status in this room."); }
 
             var currentUser = await _userManager.GetUserAsync(User);
 
             var gameRoomPlayer = await _gameRoomService.ChangePlayerState(currentUser.Id, gameRoom.Id, DAL.Enums.GameRoomPlayerState.Ready);
 
-            return StatusResult(200, $"Player is Ready.");
+            return Ok("Player is Ready");
         }
 
     }

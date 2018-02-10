@@ -13,7 +13,6 @@ public class MainUIScript : MonoBehaviour
     public GameObject mainPanel = null;
     public GameObject gameListPanel = null;    
     public GameObject gameListContent = null;
-    public Button gameListButton = null;
     public UIActiveGameScript activeGameItem = null;
 
     private void Start()
@@ -47,15 +46,18 @@ public class MainUIScript : MonoBehaviour
                 item.IsWithPassword.SetActive(game.IsWithPassword);
                 item.transform.localScale = Vector3.one;
                 
-                item.me.onClick.AddListener(() => { Debug.Log("Connect to " + gameId); });
+                item.me.onClick.AddListener(() => { ShowGameDetails(gameId); });
             }
 
-            gameListPanel.SetActive(true);
-
-            Debug.Log("Games Found: " + gameList.Count());
+            gameListPanel.SetActive(true);            
         };
 
-        StartCoroutine(ApiService.FindGamesAsync(callback));
+        StartCoroutine(ApiService.FindGamesAsync(callback));        
+    }
+
+    public void ShowGameDetails(string gameId)
+    {
+
 
         //SceneManager.LoadScene("GameField", LoadSceneMode.Single);
     }

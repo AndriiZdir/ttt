@@ -38,8 +38,6 @@ namespace Assets.Scripts
             {
                 yield return www.SendWebRequest();
 
-                Debug.LogWarning(www.responseCode);
-
                 if (www.isNetworkError || www.isHttpError)
                 {
                     Debug.LogWarning(www.error);
@@ -83,8 +81,6 @@ namespace Assets.Scripts
             {
                 yield return www.SendWebRequest();
 
-                Debug.LogWarning(www.responseCode);
-
                 if (www.isNetworkError || www.isHttpError)
                 {
                     Debug.LogWarning(www.error);
@@ -112,8 +108,6 @@ namespace Assets.Scripts
                 www.SetRequestHeader(COOKIE_HEADER_NAME, Instance.PlayerInfo.AuthCookie);
 
                 yield return www.SendWebRequest();
-
-                Debug.LogWarning(www.responseCode);
 
                 if (www.isNetworkError || www.isHttpError)
                 {
@@ -214,20 +208,58 @@ namespace Assets.Scripts
                     {
                         callback(null);
                     }
-
-                    yield break;
                 }
-
-                var result = GetListResult<LobbyGameListItem>(www.downloadHandler.text);
-
-                if (callback != null)
+                else
                 {
-                    callback(result);
+                    var result = GetListResult<LobbyGameListItem>(www.downloadHandler.text);
+
+                    if (callback != null)
+                    {
+                        callback(result);
+                    }
                 }
+
             }
 
             yield break;
         }
+
+        public static IEnumerator GetGameDetailsAsync(Action<LobbyGameDetailsModel> callback, string gameId/*, string password = null*/)  //api/lobby/details/{roomid}
+        {
+
+            using (UnityWebRequest www = UnityWebRequest.Get(GetFullUrl("api/lobby/details/" + gameId)))
+            {
+                if (Instance.PlayerInfo != null)
+                {
+                    www.SetRequestHeader(COOKIE_HEADER_NAME, Instance.PlayerInfo.AuthCookie);
+                }
+
+                yield return www.SendWebRequest();
+
+                if (www.isNetworkError || www.isHttpError)
+                {
+                    Debug.LogWarning(www.error);
+
+                    if (callback != null)
+                    {
+                        callback(null);
+                    }
+                }
+                else
+                {
+                    var result = GetEntityResult<LobbyGameDetailsModel>(www.downloadHandler.text);
+
+                    Debug.Log(www.downloadHandler.text);
+
+                    if (callback != null)
+                    {
+                        callback(result);
+                    }
+                }
+
+            }
+        }
+
 
         private static IEnumerable<T> GetListResult<T>(string json)
         {
