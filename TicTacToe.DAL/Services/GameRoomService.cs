@@ -50,7 +50,9 @@ namespace TicTacToe.DAL.Services
 
             if (includePlayers)
             {
-                dbSet = dbSet.Include(x => x.GameRoomPlayers);
+                dbSet = dbSet
+                    .Include(x => x.GameRoomPlayers)
+                    .ThenInclude(x=> x.Player);
             }
 
             return dbSet.SingleOrDefaultAsync(x => x.RoomGuid == roomId);

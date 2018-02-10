@@ -38,7 +38,7 @@ namespace TicTacToe.API.Areas.Game
             return ListResult(result);
         }
 
-        [HttpGet("init")] //TODO: change to HttpPost
+        [HttpPost("init")]
         public async Task<object> InitGame(LobbyInitGameModel model)
         {
             if (!ModelState.IsValid)
@@ -53,7 +53,7 @@ namespace TicTacToe.API.Areas.Game
             return StatusResult(200, "Game room has been created");
         }
 
-        [HttpGet("join/{roomid}")] //TODO: change to HttpPost
+        [HttpPost("join/{roomid}")]
         public async Task<object> JoinGame(Guid roomId, string password = null)
         {
             var gameRoom = await _gameRoomService.FindRoomByGuidId(roomId);
@@ -70,13 +70,12 @@ namespace TicTacToe.API.Areas.Game
         [HttpGet("details/{roomid}")]
         public async Task<object> GameDetails(Guid RoomId)
         {
-            var gameRoom = await _gameRoomService.FindRoomByGuidId(RoomId);
+            var gameRoom = await _gameRoomService.FindRoomByGuidId(RoomId, true);
 
             if (gameRoom == null) { return NotFoundResult("Room with such id not found"); }
 
-            var model = new LobbyGameDetailsModel();
-
-            //TODO: custom model for this action
+            var model = LobbyGameDetailsModel.LoadFromGameRoom(gameRoom);
+            
             return EntityResult(model);
         }
 
@@ -97,7 +96,7 @@ namespace TicTacToe.API.Areas.Game
             return StatusResult(200, $"Player has been kicked from the room by its creator.");
         }
 
-        [HttpGet("leave")] //TODO: change to HttpPost
+        [HttpPost("leave")]
         public async Task<object> LeaveGame()
         {
             //var gameRoom = await _gameRoomService.FindRoomByGuidId(RoomId);
@@ -111,7 +110,7 @@ namespace TicTacToe.API.Areas.Game
             return StatusResult(200, $"Player has been left all rooms.");
         }
 
-        [HttpGet("ready/{roomid}")] //TODO: change to HttpPost
+        [HttpPost("ready/{roomid}")]
         public async Task<object> SetAsReady(Guid RoomId)
         {
             //TODO: Autostart after last user is ready

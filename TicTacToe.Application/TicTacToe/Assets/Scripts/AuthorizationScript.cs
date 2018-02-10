@@ -105,7 +105,10 @@ public class AuthorizationScript : MonoBehaviour
 
     public void ShowSigInPanel()
     {
-        signName.text = ApiService.Instance.PlayerInfo.PlayerName;
+        if (ApiService.Instance.PlayerInfo != null)
+        {
+            signName.text = ApiService.Instance.PlayerInfo.PlayerName;
+        }
         sigInPanel.SetActive(true);
     }
 
