@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class UIGameDetailsScript : MonoBehaviour
 {
     public string gameId;
+    public bool IsCreatedByMe;
 
     public Text txtGameId;
     public Text txtUsers;
@@ -16,4 +17,6 @@ public class UIGameDetailsScript : MonoBehaviour
     public Button btnReady;
     public Button btnStart;
     public Button btnLeave;
+
+
 }

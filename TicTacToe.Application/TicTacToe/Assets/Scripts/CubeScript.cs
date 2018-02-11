@@ -7,7 +7,8 @@ public class CubeScript : MonoBehaviour
     private MeshRenderer _thisVisibility = null;
     private Transform _thisTransform = null;
 
-    public float TravelTime = 3f;
+    public Texture[] cubSignTextures;
+
     public CubeState State = CubeState.Default;
 
     void Awake()
