@@ -26,10 +26,17 @@ public class MainUIScript : MonoBehaviour
         Application.Quit();
     }
 
+    public void OnGameInit()
+    {
+        StartCoroutine(ApiService.InitGameAsync(ShowGameDetails));
+    }
+
     public void ClickFindGames()
     {
         System.Action<IEnumerable<LobbyGameListItem>> callback = (gameList) =>
         {
+            if (gameList == null) { return; }
+
             mainPanel.SetActive(false);
 
             foreach (Transform child in gameListContent.transform)

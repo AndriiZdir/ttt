@@ -28,6 +28,7 @@ namespace Assets.Scripts
             authInfoFile = Application.persistentDataPath + "/auth.json";
         }
 
+        #region Auth
         public static IEnumerator SignInAsync(Action<bool> callback, string name, string password)  //api/auth/signin
         {
             WWWForm formData = new WWWForm();
@@ -125,7 +126,7 @@ namespace Assets.Scripts
                         Instance.PlayerInfo.AuthCookie = null;
 
                         Instance.SaveAuthorization();
-                    }                   
+                    }
 
                     if (callback != null)
                     {
@@ -135,8 +136,9 @@ namespace Assets.Scripts
             }
 
         }
+        #endregion
 
-
+        #region Lobby
         public static IEnumerator GetPlayerInfoAsync(Action<AuthPlayerInfoResultModel> callback)  //api/auth/info
         {
             if (Instance.PlayerInfo == null)
@@ -247,7 +249,7 @@ namespace Assets.Scripts
                 }
                 else
                 {
-                    var result = GetEntityResult<LobbyGameDetailsModel>(www.downloadHandler.text);                    
+                    var result = GetEntityResult<LobbyGameDetailsModel>(www.downloadHandler.text);
 
                     if (callback != null)
                     {
@@ -258,7 +260,178 @@ namespace Assets.Scripts
             }
         }
 
+        public static IEnumerator InitGameAsync(Action<string> callback)  //api/lobby/init
+        {
 
+            using (UnityWebRequest www = UnityWebRequest.Post(GetFullUrl("/api/lobby/init"), string.Empty))
+            {
+                if (Instance.PlayerInfo != null)
+                {
+                    www.SetRequestHeader(COOKIE_HEADER_NAME, Instance.PlayerInfo.AuthCookie);
+                }
+
+                yield return www.SendWebRequest();
+
+                if (www.isNetworkError || www.isHttpError)
+                {
+                    Debug.LogWarning(www.error);
+
+                    if (callback != null)
+                    {
+                        callback(null);
+                    }
+                }
+                else
+                {
+                    var gameId = JsonConvert.DeserializeObject<string>(www.downloadHandler.text);
+
+                    if (callback != null)
+                    {
+                        callback(gameId);
+                    }
+                }
+
+            }
+        }
+
+        public static IEnumerator JoinGameAsync(Action<bool> callback, string gameId/*, string password = null*/)  //api/lobby/join/{roomid}
+        {
+
+            using (UnityWebRequest www = UnityWebRequest.Post(GetFullUrl("/api/lobby/join/" + gameId), string.Empty))
+            {
+                if (Instance.PlayerInfo != null)
+                {
+                    www.SetRequestHeader(COOKIE_HEADER_NAME, Instance.PlayerInfo.AuthCookie);
+                }
+
+                yield return www.SendWebRequest();
+
+                if (www.isNetworkError || www.isHttpError)
+                {
+                    Debug.LogWarning(www.error);
+
+                    if (callback != null)
+                    {
+                        callback(false);
+                    }
+                }
+                else
+                {
+
+                    if (callback != null)
+                    {
+                        callback(true);
+                    }
+                }
+
+            }
+        }
+
+        public static IEnumerator KickPlayerAsync(Action<bool> callback, string gameId, string playerId)  //api/lobby/kick/{roomid}/{playerid}
+        {
+
+            using (UnityWebRequest www = UnityWebRequest.Post(GetFullUrl("/api/lobby/kick/" + gameId + "/" + playerId), string.Empty))
+            {
+                if (Instance.PlayerInfo != null)
+                {
+                    www.SetRequestHeader(COOKIE_HEADER_NAME, Instance.PlayerInfo.AuthCookie);
+                }
+
+                yield return www.SendWebRequest();
+
+                if (www.isNetworkError || www.isHttpError)
+                {
+                    Debug.LogWarning(www.error);
+
+                    if (callback != null)
+                    {
+                        callback(false);
+                    }
+                }
+                else
+                {
+
+                    if (callback != null)
+                    {
+                        callback(true);
+                    }
+                }
+
+            }
+        }
+
+        public static IEnumerator LeaveGameAsync(Action<bool> callback)  //api/lobby/leave
+        {
+
+            using (UnityWebRequest www = UnityWebRequest.Post(GetFullUrl("/api/lobby/leave"), string.Empty))
+            {
+                if (Instance.PlayerInfo != null)
+                {
+                    www.SetRequestHeader(COOKIE_HEADER_NAME, Instance.PlayerInfo.AuthCookie);
+                }
+
+                yield return www.SendWebRequest();
+
+                if (www.isNetworkError || www.isHttpError)
+                {
+                    Debug.LogWarning(www.error);
+
+                    if (callback != null)
+                    {
+                        callback(false);
+                    }
+                }
+                else
+                {
+
+                    if (callback != null)
+                    {
+                        callback(true);
+                    }
+                }
+
+            }
+        }
+
+        public static IEnumerator SetReadyAsync(Action<bool> callback, string gameId)  //api/lobby/ready/{roomid}
+        {
+
+            using (UnityWebRequest www = UnityWebRequest.Post(GetFullUrl("/api/lobby/ready/" + gameId), string.Empty))
+            {
+                if (Instance.PlayerInfo != null)
+                {
+                    www.SetRequestHeader(COOKIE_HEADER_NAME, Instance.PlayerInfo.AuthCookie);
+                }
+
+                yield return www.SendWebRequest();
+
+                if (www.isNetworkError || www.isHttpError)
+                {
+                    Debug.LogWarning(www.error);
+
+                    if (callback != null)
+                    {
+                        callback(false);
+                    }
+                }
+                else
+                {
+
+                    if (callback != null)
+                    {
+                        callback(true);
+                    }
+                }
+
+            }
+        }
+        #endregion
+
+        #region Game
+
+        #endregion
+
+        #region Utilities
         private static IEnumerable<T> GetListResult<T>(string json)
         {
             var result = JsonConvert.DeserializeObject<ListApiResult<T>>(json);
@@ -272,7 +445,7 @@ namespace Assets.Scripts
         }
 
         private static string GetFullUrl(string path)
-        {            
+        {
             return Instance.APIEndpoint + path;
         }
 
@@ -282,6 +455,8 @@ namespace Assets.Scripts
 
             File.WriteAllText(authInfoFile, json);
         }
+        #endregion
+
 
         public bool ReadAuthorization()
         {

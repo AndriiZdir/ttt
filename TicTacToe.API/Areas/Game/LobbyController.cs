@@ -49,8 +49,8 @@ namespace TicTacToe.API.Areas.Game
             var currentUser = await _userManager.GetUserAsync(User);
 
             var result = await _gameRoomService.CreateGameRoom(currentUser.Id, model.MaxPlayers, model.MinesQuantity, false, model.Password);
-            
-            return Ok("Game room has been created");
+
+            return Ok(result.RoomGuid);
         }
 
         [HttpPost("join/{roomid}")]
@@ -93,11 +93,11 @@ namespace TicTacToe.API.Areas.Game
             var currentUser = await _userManager.GetUserAsync(User);
 
             if (gameRoom.CreateUser != currentUser.Id 
-                && gameRoom.State == GameRoomState.New) { return Forbid("You have no permission to do that."); }
+                && gameRoom.State == GameRoomState.New) { return Forbid("You have no permission to do that"); }
 
             await _gameRoomService.KickPlayerFromGameRoom(playerId, gameRoom.Id);
 
-            return Ok("Player has been kicked from the room by its creator");
+            return Ok("Player has been kicked from the room");
         }
 
         [HttpPost("leave")]

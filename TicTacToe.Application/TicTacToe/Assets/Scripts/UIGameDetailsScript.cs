@@ -121,7 +121,7 @@ public class UIGameDetailsScript : MonoBehaviour
 
     public void OnBtnReady()
     {
-
+        StartCoroutine(ApiService.SetReadyAsync(null, gameId));
     }
 
     public void OnBtnStart()
@@ -131,11 +131,12 @@ public class UIGameDetailsScript : MonoBehaviour
 
     public void OnBtnJoin()
     {
-
+        StartCoroutine(ApiService.JoinGameAsync(null, gameId));
     }
 
     public void OnBtnLeave()
     {
+        StartCoroutine(ApiService.LeaveGameAsync(null));
         gameObject.SetActive(false);
     }
 }
