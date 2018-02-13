@@ -14,6 +14,7 @@ public class MainUIScript : MonoBehaviour
     public GameObject gameListPanel = null;    
     public GameObject gameListContent = null;
     public UIActiveGameScript activeGameItem = null;
+    public UIGameDetailsScript gameDetails = null;
 
     private void Start()
     {
@@ -27,8 +28,9 @@ public class MainUIScript : MonoBehaviour
 
     public void ClickFindGames()
     {
-        System.Action<IEnumerable<LobbyGameListItem>> callback = (gameList) => {
-            mainPanel.SetActive(false);            
+        System.Action<IEnumerable<LobbyGameListItem>> callback = (gameList) =>
+        {
+            mainPanel.SetActive(false);
 
             foreach (Transform child in gameListContent.transform)
             {
@@ -45,21 +47,21 @@ public class MainUIScript : MonoBehaviour
                 item.txtBombs.text = game.MinesQuantity.ToString();
                 item.IsWithPassword.SetActive(game.IsWithPassword);
                 item.transform.localScale = Vector3.one;
-                
+
                 item.me.onClick.AddListener(() => { ShowGameDetails(gameId); });
             }
 
-            gameListPanel.SetActive(true);            
+            gameListPanel.SetActive(true);
         };
 
-        StartCoroutine(ApiService.FindGamesAsync(callback));        
+        StartCoroutine(ApiService.FindGamesAsync(callback));
     }
 
     public void ShowGameDetails(string gameId)
-    {
-
-
-        //SceneManager.LoadScene("GameField", LoadSceneMode.Single);
+    {        
+        gameDetails.gameId = gameId;
+        gameDetails.IsCreatedByMe = false;
+        gameDetails.gameObject.SetActive(true);
     }
 
     public void OnScroll(Vector2 value)

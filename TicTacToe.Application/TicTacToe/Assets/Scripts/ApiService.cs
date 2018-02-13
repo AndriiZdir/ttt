@@ -227,7 +227,7 @@ namespace Assets.Scripts
         public static IEnumerator GetGameDetailsAsync(Action<LobbyGameDetailsModel> callback, string gameId/*, string password = null*/)  //api/lobby/details/{roomid}
         {
 
-            using (UnityWebRequest www = UnityWebRequest.Get(GetFullUrl("api/lobby/details/" + gameId)))
+            using (UnityWebRequest www = UnityWebRequest.Get(GetFullUrl("/api/lobby/details/" + gameId)))
             {
                 if (Instance.PlayerInfo != null)
                 {
@@ -247,9 +247,7 @@ namespace Assets.Scripts
                 }
                 else
                 {
-                    var result = GetEntityResult<LobbyGameDetailsModel>(www.downloadHandler.text);
-
-                    Debug.Log(www.downloadHandler.text);
+                    var result = GetEntityResult<LobbyGameDetailsModel>(www.downloadHandler.text);                    
 
                     if (callback != null)
                     {

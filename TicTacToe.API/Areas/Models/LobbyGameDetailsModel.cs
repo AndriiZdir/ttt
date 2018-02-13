@@ -14,6 +14,7 @@ namespace TicTacToe.API.Areas.Models
         public int JoinedPlayers { get; set; }
         public int MinesQuantity { get; set; }
         public bool IsWithPassword { get; set; }
+        public GameRoomState GameState { get; set; }
 
         public IEnumerable<LobbyGameDetails_Player> Players { get; set; }
 
@@ -36,6 +37,7 @@ namespace TicTacToe.API.Areas.Models
                 JoinedPlayers = gameRoom.GameRoomPlayers.Count,
                 MinesQuantity = gameRoom.MinesQuantity,
                 IsWithPassword = (gameRoom.Password != null),
+                GameState = gameRoom.State,
 
                 Players = gameRoom.GameRoomPlayers.Select(x => new LobbyGameDetails_Player
                 {

@@ -12,6 +12,7 @@ namespace Assets.Scripts.ApiModels
         public int JoinedPlayers;
         public int MinesQuantity;
         public bool IsWithPassword;
+        public GameRoomState GameState;
 
         public IEnumerable<LobbyGameDetails_Player> Players;
 
@@ -25,5 +26,10 @@ namespace Assets.Scripts.ApiModels
         }        
     }
 
-    
+    public enum GameRoomState
+    {
+        New,
+        Started,
+        Closed
+    }
 }

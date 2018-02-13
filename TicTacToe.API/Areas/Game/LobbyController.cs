@@ -83,7 +83,7 @@ namespace TicTacToe.API.Areas.Game
             return EntityResult(model);
         }
 
-        [HttpGet("kick/{roomid}/{playerid}")] //TODO: change to HttpPost
+        [HttpPost("kick/{roomid}/{playerid}")]
         public async Task<object> KickFromRoom(Guid roomId, string playerId)
         {
             var gameRoom = await _gameRoomService.FindRoomByGuidId(roomId);
