@@ -48,8 +48,8 @@ namespace TicTacToe.API.Areas.Models
             var model = new GameCurrentStateModel();
 
             model.Points = gameField.Points
-                .Where(x=> x.PointType == SignPointType.Sign || x.PointType == SignPointType.MineUsed)
-                .Select(x => new GameState_Point { X = x.Position.X, Y = x.Position.Y, PlayerId = x.Player.Id })
+                //.Where(x=> x.PointType == SignPointType.Sign || x.PointType == SignPointType.MineUsed)
+                .Select(x => new GameState_Point { X = x.Position.X, Y = x.Position.Y, PlayerId = x.Player.Id, Type = (byte)x.PointType })
                 .ToList();
 
             model.Combinations = gameField.Combinations
@@ -82,7 +82,7 @@ namespace TicTacToe.API.Areas.Models
             public int X { get; set; }
             public int Y { get; set; }
             public string PlayerId { get; set; }
-            //public int Type { get; set; }
+            public byte Type { get; set; }
         }
 
         public class GameState_Combination

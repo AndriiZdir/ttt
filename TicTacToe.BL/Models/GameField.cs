@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace TicTacToe.BL.Models
 {
+    //TODO: Saving and loading game state from log file.
+
     public class GameField : IDisposable
     {
         #region readonlies
@@ -46,6 +48,8 @@ namespace TicTacToe.BL.Models
             _gameState = GameFieldState.New;            
         }
 
+        #region Properties
+
         public Guid GameId { get { return _gameId; } }
 
         public GameFieldState State { get { return _gameState; } }
@@ -63,6 +67,8 @@ namespace TicTacToe.BL.Models
         public List<Player> Players { get { return _gamePlayers; } }
 
         public Player CurrentTurnPlayer { get { return _currentTurnPlayer; } }
+
+        #endregion
 
         public Player AddPlayerToField(string playerId)
         {
@@ -171,7 +177,7 @@ namespace TicTacToe.BL.Models
             return point;
         }
 
-        public void SetMine(int x, int y)
+        public SignPoint SetMine(int x, int y)
         {
             CheckBoundsOutOfRange(x, y);
 
@@ -186,12 +192,14 @@ namespace TicTacToe.BL.Models
             {
                 point = SetPointByCoords(x, y, _currentTurnPlayer, SignPointType.MineNew);
 
-                UpdateFieldBounds(point.Position);
+                UpdateFieldBounds(point.Position);                
             }
             else
             {
                 throw new Exception("This point is not empty!");
-            }            
+            }
+
+            return point;
         }
 
         #region Utilities

@@ -425,10 +425,77 @@ namespace Assets.Scripts
 
             }
         }
+
+
         #endregion
 
         #region Game
+        public static IEnumerator StartGameAsync(Action<bool> callback, string gameId)  //api/game/start/{roomid}
+        {
 
+            using (UnityWebRequest www = UnityWebRequest.Post(GetFullUrl("/api/game/start/" + gameId), string.Empty))
+            {
+                if (Instance.PlayerInfo != null)
+                {
+                    www.SetRequestHeader(COOKIE_HEADER_NAME, Instance.PlayerInfo.AuthCookie);
+                }
+
+                yield return www.SendWebRequest();
+
+                if (www.isNetworkError || www.isHttpError)
+                {
+                    Debug.LogWarning(www.error);
+
+                    if (callback != null)
+                    {
+                        callback(false);
+                    }
+                }
+                else
+                {
+
+                    if (callback != null)
+                    {
+                        callback(true);
+                    }
+                }
+
+            }
+        }
+
+        public static IEnumerator GetGameStateAsync(Action<GameStateModel> callback, string gameId)  //api/game/state/{roomid}
+        {
+
+            using (UnityWebRequest www = UnityWebRequest.Get(GetFullUrl("/api/game/state/" + gameId)))
+            {
+                if (Instance.PlayerInfo != null)
+                {
+                    www.SetRequestHeader(COOKIE_HEADER_NAME, Instance.PlayerInfo.AuthCookie);
+                }
+
+                yield return www.SendWebRequest();
+
+                if (www.isNetworkError || www.isHttpError)
+                {
+                    Debug.LogWarning(www.error);
+
+                    if (callback != null)
+                    {
+                        callback(null);
+                    }
+                }
+                else
+                {
+                    var result = GetEntityResult<GameStateModel>(www.downloadHandler.text);
+
+                    if (callback != null)
+                    {
+                        callback(result);
+                    }
+                }
+
+            }
+        }
         #endregion
 
         #region Utilities
