@@ -3,6 +3,7 @@ using Assets.Scripts.ApiModels;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIGameDetailsScript : MonoBehaviour
@@ -60,18 +61,21 @@ public class UIGameDetailsScript : MonoBehaviour
         bool isMeReady = false;
         bool isAllReady = true;
 
-        if (model.GameState == GameRoomState.Closed)
+        if (model == null || model.GameState == GameRoomState.Closed)
         {
             OnBtnLeave();
+
             return;
         }
 
         if (model.GameState == GameRoomState.Started)
         {
-            if (isMeJoined && isMeReady)
-            {
-                Debug.Log("Load game field scene.");
-            }
+            Debug.Log("Load game field scene.");
+
+            GameFieldManager.StartGame(gameId);
+
+            gameObject.SetActive(false);
+
             return;
         }
 
@@ -126,7 +130,7 @@ public class UIGameDetailsScript : MonoBehaviour
 
     public void OnBtnStart()
     {
-
+        StartCoroutine(ApiService.StartGameAsync(null, gameId));
     }
 
     public void OnBtnJoin()

@@ -41,10 +41,10 @@ namespace Assets.Scripts.ApiModels
 
         public class GameState_GameBounds
         {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
+            public float Left;
+            public float Top;
+            public float Right;
+            public float Bottom;
         }
     }
 

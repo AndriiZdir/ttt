@@ -10,11 +10,28 @@ using UnityEngine.UI;
 
 public class MainUIScript : MonoBehaviour
 {
+    public GameObject staticGameFielManager = null;
+    public GameObject staticApiService = null;
     public GameObject mainPanel = null;
     public GameObject gameListPanel = null;    
-    public GameObject gameListContent = null;
+    public GameObject gameListContent = null;    
     public UIActiveGameScript activeGameItem = null;
     public UIGameDetailsScript gameDetails = null;
+
+    private static int c = 0;
+
+    private void Awake()
+    {
+        if (GameFieldManager.Instance == null)
+        {
+            Instantiate(staticGameFielManager);
+        }
+
+        if (ApiService.Instance == null)
+        {
+            Instantiate(staticApiService);
+        }
+    }
 
     private void Start()
     {
@@ -71,16 +88,16 @@ public class MainUIScript : MonoBehaviour
         gameDetails.gameObject.SetActive(true);
     }
 
-    public void OnScroll(Vector2 value)
-    {
-        if (value.y > 1)
-        {
-            Debug.Log("Load: " + value.y);
-        }
-    }
+    //public void OnScroll(Vector2 value)
+    //{
+    //    if (value.y > 1)
+    //    {
+    //        Debug.Log("Load: " + value.y);
+    //    }
+    //}
 
-    public void OnScroll2(float value)
-    {
-        Debug.Log("Load: " + value);
-    }
+    //public void OnScroll2(float value)
+    //{
+    //    Debug.Log("Load: " + value);
+    //}
 }

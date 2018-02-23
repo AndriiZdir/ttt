@@ -4,17 +4,14 @@ using UnityEngine;
 
 public class CubeScript : MonoBehaviour
 {
-    private MeshRenderer _thisVisibility = null;
-    private Transform _thisTransform = null;
-
     public Texture[] cubSignTextures;
 
     public CubeState State = CubeState.Default;
+    public Vector2 tileCoords;
 
     void Awake()
     {
-        _thisVisibility = GetComponent<MeshRenderer>();
-        _thisTransform = GetComponent<Transform>();
+
     }
 
     void Update()
@@ -60,6 +57,11 @@ public class CubeScript : MonoBehaviour
         State = CubeState.Activated;
         yield break;
     }
+
+    private void OnMouseDown()
+    {
+        Debug.Log(tileCoords);
+    }    
 }
 
 public enum CubeState

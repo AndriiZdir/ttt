@@ -42,7 +42,7 @@ namespace TicTacToe.API.Areas.Game
         {
             var currentUser = await _userManager.GetUserAsync(User);
 
-            var gameField = _gameManager.GetGameField(RoomId);
+            var gameField = _gameManager[RoomId];
 
             //TODO: activate restriction ?
             //if (!gameField.Players.Any(x => x.Id == currentUser.Id)) { return Forbid(); }
@@ -59,7 +59,7 @@ namespace TicTacToe.API.Areas.Game
 
             var point = _gameManager.SetPoint(RoomId, currentUser.Id, x, y);
 
-            var gameField = _gameManager.GetGameField(RoomId);
+            var gameField = _gameManager[RoomId];
             var gameState = GameCurrentStateModel.FromGameField(gameField);
 
             return EntityResult(gameState);
@@ -72,7 +72,7 @@ namespace TicTacToe.API.Areas.Game
 
             var point = _gameManager.SetPoint(RoomId, currentUser.Id, x, y);
 
-            var gameField = _gameManager.GetGameField(RoomId);
+            var gameField = _gameManager[RoomId];
             var gameState = GameCurrentStateModel.FromGameField(gameField);
 
             return EntityResult(gameState);

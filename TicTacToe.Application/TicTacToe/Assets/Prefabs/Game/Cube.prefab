@@ -23,7 +23,6 @@ GameObject:
   - component: {fileID: 23719538721204318}
   - component: {fileID: 65162891410885112}
   - component: {fileID: 114354993684162250}
-  - component: {fileID: 114138393743287908}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -95,47 +94,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.99999994, y: 0.05, z: 0.99999994}
+  m_Size: {x: 1, y: 0.4, z: 1}
   m_Center: {x: 0, y: 0.45, z: 0}
---- !u!114 &114138393743287908
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1002457231436786}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9c933eb8b407754a8f98425dfaa784f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  quickActionName: QuickTapc9fd0c4
-  isMultiTouch: 0
-  is2Finger: 0
-  isOnTouch: 0
-  enablePickOverUI: 1
-  resetPhysic: 0
-  directAction: 0
-  axesAction: 0
-  sensibility: 1
-  directCharacterController: {fileID: 0}
-  inverseAxisValue: 0
-  onTap:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 114354993684162250}
-        m_MethodName: OnTapEnable
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_TypeName: HedgehogTeam.EasyTouch.QuickTap+OnTap, Assembly-CSharp, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  actionTriggering: 0
 --- !u!114 &114354993684162250
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -154,3 +114,4 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 15ad328708466de419fd8a706abb8b70, type: 3}
   - {fileID: 2800000, guid: f2e181195feaac84f80afbd816ddff74, type: 3}
   State: 0
+  tileCoords: {x: 0, y: 0}

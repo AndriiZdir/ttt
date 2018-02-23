@@ -1071,7 +1071,6 @@ GameObject:
   - component: {fileID: 297362301}
   - component: {fileID: 297362304}
   - component: {fileID: 297362303}
-  - component: {fileID: 297362302}
   m_Layer: 5
   m_Name: GameInitModal
   m_TagString: Untagged
@@ -1100,27 +1099,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 400, y: 400}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &297362302
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 297362300}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59a6be4585837c14283d9751c93aa10f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gameId: 
-  IsCreatedByMe: 0
-  UpdateRate: 2
-  txtGameId: {fileID: 1050078815}
-  gamePlayersContent: {fileID: 0}
-  gamePlayerPrefab: {fileID: 0}
-  btnReady: {fileID: 0}
-  btnStart: {fileID: 0}
-  btnJoin: {fileID: 0}
-  btnLeave: {fileID: 0}
 --- !u!114 &297362303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1994,7 +1972,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 814886888}
+      - m_Target: {fileID: 0}
         m_MethodName: OnScroll
         m_Mode: 0
         m_Arguments:
@@ -2778,7 +2756,6 @@ GameObject:
   - component: {fileID: 814886885}
   - component: {fileID: 814886884}
   - component: {fileID: 814886888}
-  - component: {fileID: 814886889}
   - component: {fileID: 814886890}
   m_Layer: 5
   m_Name: Canvas
@@ -2798,7 +2775,7 @@ MonoBehaviour:
   m_Script: {fileID: 1301386320, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
+  m_IgnoreReversedGraphics: 0
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
@@ -2879,24 +2856,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6f658421012ac540a5da7c3c214bcc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  staticGameFielManager: {fileID: 1155259150943708, guid: 39179758cc0d70e468a316908f4433df,
+    type: 2}
+  staticApiService: {fileID: 1169214619198510, guid: 7cbc47081f6b72a4e819971bed54d96d,
+    type: 2}
   mainPanel: {fileID: 316534307}
   gameListPanel: {fileID: 1962666503}
   gameListContent: {fileID: 1772819153}
   activeGameItem: {fileID: 114535338058894652, guid: 7420062cd8e888d4a9f689fda44a7323,
     type: 2}
   gameDetails: {fileID: 310360078}
---- !u!114 &814886889
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 814886883}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b03e3e9509dd7c545911324aaadef426, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  APIEndpoint: https://localhost:44319
 --- !u!114 &814886890
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3213,7 +3182,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 814886888}
+      - m_Target: {fileID: 0}
         m_MethodName: OnScroll
         m_Mode: 0
         m_Arguments:
@@ -5015,7 +4984,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 814886888}
+      - m_Target: {fileID: 0}
         m_MethodName: OnScroll2
         m_Mode: 0
         m_Arguments:
@@ -5142,7 +5111,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 814886888}
+      - m_Target: {fileID: 0}
         m_MethodName: OnScroll2
         m_Mode: 0
         m_Arguments:

@@ -22,10 +22,16 @@ namespace Assets.Scripts
         private string authInfoFile;         
 
         public GameAuthModel PlayerInfo { get; private set; }
+        public string currentGameId;
 
         private void Awake()
         {
             authInfoFile = Application.persistentDataPath + "/auth.json";
+        }
+
+        private void Update()
+        {
+            if (currentGameId == null) { currentGameId = Guid.NewGuid().ToString(); }
         }
 
         #region Auth

@@ -34,8 +34,9 @@ public class Singleton<T> : MonoBehaviour where T : Singleton<T>
 		}
 		set
 		{
-			instance = value as T;
+			instance = value;
 		}
 	}
+
 	private static T instance;
 }
