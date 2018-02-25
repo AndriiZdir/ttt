@@ -51,5 +51,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b03e3e9509dd7c545911324aaadef426, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  APIEndpoint: https://localhost:44319
+  APIEndpoint: http://tictactoe.me
   currentGameId: 

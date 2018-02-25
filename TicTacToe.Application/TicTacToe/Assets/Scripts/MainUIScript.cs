@@ -18,8 +18,6 @@ public class MainUIScript : MonoBehaviour
     public UIActiveGameScript activeGameItem = null;
     public UIGameDetailsScript gameDetails = null;
 
-    private static int c = 0;
-
     private void Awake()
     {
         if (GameFieldManager.Instance == null)

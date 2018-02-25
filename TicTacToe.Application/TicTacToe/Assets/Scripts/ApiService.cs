@@ -14,7 +14,7 @@ namespace Assets.Scripts
 {
     public class ApiService : Singleton<ApiService>
     {
-        public string APIEndpoint = "https://localhost:44319";
+        public string APIEndpoint = "http://tictactoe.me";
 
         public const string COOKIE_HEADER_NAME = "cookie";
         public const string SETCOOKIE_HEADER_NAME = "set-cookie";
@@ -47,7 +47,7 @@ namespace Assets.Scripts
 
                 if (www.isNetworkError || www.isHttpError)
                 {
-                    Debug.LogWarning(www.error);
+                    Debug.LogWarning(www.url + "\r\n" + www.error);
 
                     if (callback != null)
                     {
@@ -210,7 +210,7 @@ namespace Assets.Scripts
 
                 if (www.isNetworkError || www.isHttpError)
                 {
-                    Debug.LogWarning(www.error);
+                    Debug.LogWarning(www.url + "\r\n" + www.error);
 
                     if (callback != null)
                     {
