@@ -10,7 +10,7 @@ public class UIGameDetailsScript : MonoBehaviour
 {
     public string gameId;
     public bool IsCreatedByMe;
-    public float UpdateRate = 2f;
+    public float UpdateRate = 1f;
 
     public Text txtGameId;
     //public Text txtUsers;
@@ -72,7 +72,7 @@ public class UIGameDetailsScript : MonoBehaviour
         {
             Debug.Log("Load game field scene.");
 
-            GameFieldManager.StartGame(gameId);
+            GameFieldManager.StartGame(gameId, model);
 
             gameObject.SetActive(false);
 

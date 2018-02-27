@@ -8,7 +8,7 @@ public class CubeScript : MonoBehaviour
 
     public CubeState State = CubeState.Default;
     public Vector2 tileCoords;
-    //public GameFieldScript gameField;
+    public GameFieldScript gameField;
 
     void Awake()
     {
@@ -61,7 +61,7 @@ public class CubeScript : MonoBehaviour
 
     private void OnMouseDown()
     {
-        GameFieldManager.Instance.SelectTile(this);
+        gameField.SelectTile(this);
         Debug.Log(tileCoords);
     }    
 }

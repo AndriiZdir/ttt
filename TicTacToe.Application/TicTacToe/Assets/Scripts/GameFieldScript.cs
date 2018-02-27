@@ -1,19 +1,46 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Assets.Scripts.Extensions;
+using Assets.Scripts;
+using Assets.Scripts.ApiModels;
 
 public class GameFieldScript : MonoBehaviour
 {
-    public Transform rootObject;
-    public CubeScript fieldTile;
-
+    [Header("Camera")]
     public Camera gameCamera;
     public Animator gameCameraAnimator;
+        
+    private GameStateModel lastGameState;
+    private Rect gameBounds;
 
-    // Use this for initialization
+    [Header("Tiles")]
+    public CubeScript fieldTilePrefab;
+    private Dictionary<string, CubeScript> dictTiles;
+    private CubeScript selectedTile;
+
+    [Header("UI")]
+    public GameObject buttonDeselect;
+    public UIGameFieldPlayerListScript uiGameFieldPlayerList;
+
+    [Header("Variables")]
+    public float cameraAimTime = 1.0f;
+    public float tileMargin = 1f;
+
     void Start()
     {
-        GameFieldManager.Instance.gameField = this;
+        dictTiles = new Dictionary<string, CubeScript>();
+
+        buttonDeselect.SetActive(false);
+
+        uiGameFieldPlayerList.ClearPlayerList();
+
+        foreach (var player in GameFieldManager.Instance.gameDetails.Players)
+        {
+            uiGameFieldPlayerList.AddPlayerToList(player.PlayerId, player.Sign, player.PlayerName);
+        }
+
+        GameFieldManager.Instance.StartCoroutine(UpdateGameFieldState());
     }
 
     // Update is called once per frame
@@ -22,50 +49,149 @@ public class GameFieldScript : MonoBehaviour
 
     }
 
-    public void CameraMoveToTile(float x, float y)
+    public void OnBtnDeselect()
+    {
+        DeselectTile();
+    }
+
+    public void OnBtnTest()
+    {
+       GenerateTestGame();
+    }    
+
+    public void SelectTile(CubeScript tile)
+    {
+        StopAllCoroutines();
+
+        if (selectedTile == null)
+        {            
+            CameraMoveToTile(tile.transform.position.x, tile.transform.position.z);
+            CameraChangeZoom(20);            
+        }
+        else
+        {
+            CameraMoveToTile(tile.transform.position.x, tile.transform.position.z, 0.5f);
+        }
+
+        Debug.Log("Select new tile " + tile.tileCoords);
+        selectedTile = tile;
+        buttonDeselect.SetActive(true);
+    }
+
+    public void DeselectTile()
+    {
+        Debug.Log("Deselected..");
+        StopAllCoroutines();
+        CameraChangeZoom(60);
+        selectedTile = null;
+        buttonDeselect.SetActive(false);
+    }
+
+
+    IEnumerator UpdateGameFieldState()
+    {
+        while (GameFieldManager.Instance.currentGameId != null)
+        {
+            yield return ApiService.GetGameStateAsync(GameStateCallback, GameFieldManager.Instance.currentGameId);
+        }
+    }
+
+    private void GameStateCallback(GameStateModel gameState)
+    {
+        if (lastGameState == null)
+        {
+            InitGameField(gameState);
+            return;
+        }
+
+        uiGameFieldPlayerList.ShowCurrentTurnPlayer(gameState.CurrentTurnPlayerId);
+
+        foreach (var player in gameState.Players)
+        {
+            uiGameFieldPlayerList.SetPlayerPoints(player.PlayerId, player.Points);
+        }
+
+        foreach (var point in gameState.Points)
+        {
+                        
+        }
+
+        lastGameState = gameState;
+    }
+
+
+    private void GenerateTestGame()
+    {
+        gameBounds = Rect.zero;
+        dictTiles = new Dictionary<string, CubeScript>();
+        selectedTile = null;
+
+        ExpandField(Rect.MinMaxRect(-16, -16, 16, 16));
+    }
+
+    private void InitGameField(GameStateModel gameState)
+    {
+        var gameStateBounds = Rect.MinMaxRect(gameState.MoveBounds.Left, gameState.MoveBounds.Top, gameState.MoveBounds.Right, gameState.MoveBounds.Bottom);
+
+        ExpandField(gameStateBounds);
+
+        lastGameState = gameState;
+    }
+
+    private void ExpandField(Rect bounds)
+    {
+        if (gameBounds == bounds)
+        {
+            return;
+        }
+
+        for (float x = bounds.xMin; x <= bounds.xMax; x++)
+        {
+            for (float y = bounds.yMin; y <= bounds.yMax; y++)
+            {
+                if (!gameBounds.Contains(new Vector2(x, y)))
+                {
+                    InsertTile(x, y);
+                }
+            }
+        }
+
+        gameBounds = bounds;
+
+        Debug.Log("Field expanded to " + gameBounds);
+    }
+
+    private CubeScript InsertTile(float x, float y)
+    {
+        var tile = Instantiate(fieldTilePrefab, new Vector3(x + x * tileMargin, 1, y + y * tileMargin), Quaternion.identity);
+        tile.name = "tile_(" + x + ";" + y + ")";
+        tile.tileCoords = new Vector2(x, y);
+        tile.gameField = this;
+
+        dictTiles.Add(x + ";" + y, tile);
+
+        return tile;
+    }
+
+    private CubeScript GetTile(float x, float y)
+    {
+        CubeScript tile = null;
+
+        dictTiles.TryGetValue(x + ";" + y, out tile);
+
+        return tile;
+    }
+
+    private void CameraMoveToTile(float x, float y, float timeCoef = 1)
     {
         var currentCamPosition = gameCamera.transform.position;
 
-        StartCoroutine(MoveFromTo(gameCamera.transform, currentCamPosition, new Vector3(x - 16, currentCamPosition.y, y - 16), 15));        
+        StartCoroutine(gameCamera.gameObject.MoveOverSeconds(new Vector3(x - 16, currentCamPosition.y, y - 16), cameraAimTime * timeCoef));
     }
 
-    public void CameraChangeZoom(float zoom)
+    private void CameraChangeZoom(float zoom)
     {
-        StartCoroutine(SmoothChangeCameraFOV(gameCamera, zoom, Mathf.Abs(gameCamera.fieldOfView - zoom)));
+        StartCoroutine(gameCamera.SmoothChangeCameraFOV(zoom, cameraAimTime));
     }
 
-    IEnumerator MoveFromTo(Transform objectToMove, Vector3 a, Vector3 b, float speed)
-    {
-        float step = (speed / (a - b).magnitude) * Time.fixedDeltaTime;
-        float t = 0;
-        while (t <= 1.0f)
-        {
-            t += step; // Goes from 0 to 1, incrementing by step each time
-            objectToMove.position = Vector3.Lerp(a, b, t); // Move objectToMove closer to b
-            yield return new WaitForFixedUpdate();         // Leave the routine and return here in the next frame
-        }
-        objectToMove.position = b;
-    }
-
-    IEnumerator SmoothChangeCameraFOV(Camera cam, float newFOV, float smooth)
-    {
-        var currentFOV = gameCamera.fieldOfView;
-
-        int zoomCoef = currentFOV > newFOV ? -1 : 1;
-
-        while (currentFOV != newFOV)
-        {
-            cam.fieldOfView += (zoomCoef * smooth * Time.fixedDeltaTime);
-
-            if ((currentFOV <= newFOV && zoomCoef == -1) || (currentFOV >= newFOV && zoomCoef == 1))
-            {
-                cam.fieldOfView = newFOV;
-            }
-            
-            currentFOV = gameCamera.fieldOfView;
-
-            yield return new WaitForFixedUpdate();         // Leave the routine and return here in the next frame
-        }
-
-    }
 }
