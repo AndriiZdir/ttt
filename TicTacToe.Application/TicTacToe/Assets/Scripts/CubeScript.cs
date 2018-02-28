@@ -2,76 +2,44 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public delegate void TilePressAction(CubeScript selectedTile);
+
 public class CubeScript : MonoBehaviour
 {
-    public Texture[] cubSignTextures;
-
-    public CubeState State = CubeState.Default;
+    public CubeState state;
+    public byte sign;
     public Vector2 tileCoords;
     public GameFieldScript gameField;
+    public string playerId;
 
-    void Awake()
+    public event TilePressAction OnTileSelected;
+
+    private MeshRenderer thisMeshRenderer;
+
+    void Start()
     {
-        
+        state = CubeState.Default;
+        thisMeshRenderer = GetComponent<MeshRenderer>();
+
+        thisMeshRenderer.material = gameField.cubeSignMaterials[2];
     }
 
-    void Update()
+    void OnMouseUpAsButton()
     {
-        switch (State)
+        if (OnTileSelected != null)
         {
-            case CubeState.Default:
-            default:
-                break;
-
-            case CubeState.Activating:
-                //_thisTransform.position += Vector3.Slerp(Vector3.up * 0, Vector3.up * 1f, 0.5f * Time.deltaTime);
-                break;
-            case CubeState.Activated:
-                break;
-
-            case CubeState.Deactivating:
-                break;
-            case CubeState.Deactivated:
-                break;
-
-            case CubeState.Loading:
-                break;
-        }
-    }
-
-    public void OnTapEnable()
-    {
-        if (State == CubeState.Default)
-        {
-            StartCoroutine(Activate());
-        }
-        else if (State == CubeState.Activated)
-        {
-            State = CubeState.Loading;
+            OnTileSelected(this);
         }        
     }
 
-    IEnumerator Activate()
-    {
-        State = CubeState.Activating;
-        yield return new WaitForSeconds(0.5f);
-        State = CubeState.Activated;
-        yield break;
-    }
-
-    private void OnMouseDown()
-    {
-        gameField.SelectTile(this);
-        Debug.Log(tileCoords);
-    }    
+    
 }
 
 public enum CubeState
 {
     Default,
-    Activating,
-    Activated,
-    Deactivating,
-    Deactivated,
-    Loading
+    Selected,
+    Signed,
+    Mine,
+    MineUsed
 }

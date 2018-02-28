@@ -49,25 +49,24 @@ public class UIGameFieldPlayerListScript : MonoBehaviour
         }
     }
 
-    public void ShowCurrentTurnPlayer(string playerId)
+    public void UpdatePlayerInformation(string playerId, int? points = null, bool? isCurrentTurn = null, bool? isSkiping = null)
     {
-        foreach (var item in dictGameFieldPlayers)
-        {
-            var player = item.Value;
+        var player = dictGameFieldPlayers[playerId];
 
-            if (item.Key == playerId)
-            {
-                player.txtPlayerNameOutline.effectColor = Color.clear;
-            }
-            else
-            {
-                player.txtPlayerNameOutline.effectColor = Color.yellow;
-            }
+        if (isCurrentTurn.HasValue)
+        {
+            player.txtPlayerNameOutline.effectColor = isCurrentTurn.Value ? currentTurnPlayerColor : Color.clear;
+        }
+
+        if (isSkiping.HasValue)
+        {
+            player.txtPlayerName.color = isSkiping.Value ? skipTurnPlayerColor : Color.white;
+        }
+
+        if (points.HasValue)
+        {
+            player.txtPoints.text = points.Value.ToString();
         }
     }
 
-    public void SetPlayerPoints(string playerId, int points)
-    {
-        dictGameFieldPlayers[playerId].txtPoints.text = points.ToString();
-    }
 }

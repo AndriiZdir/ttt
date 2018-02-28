@@ -36,13 +36,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1002457231436786}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.7, y: 0.2, z: 1.7}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!23 &23719538721204318
 MeshRenderer:
   m_ObjectHideFlags: 1
@@ -107,11 +107,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 439a76aca4384094ab551c3d40e16a14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cubSignTextures:
-  - {fileID: 2800000, guid: d6842040d0f8c3e43be83a77554045c2, type: 3}
-  - {fileID: 2800000, guid: 9d705d6b1ba986549a44bf9177428a8a, type: 3}
-  - {fileID: 2800000, guid: ba4c669b2a10f7849994e1ed00bc65ab, type: 3}
-  - {fileID: 2800000, guid: 15ad328708466de419fd8a706abb8b70, type: 3}
-  - {fileID: 2800000, guid: f2e181195feaac84f80afbd816ddff74, type: 3}
-  State: 0
+  state: 0
+  sign: 0
   tileCoords: {x: 0, y: 0}
+  gameField: {fileID: 0}
+  playerId: 

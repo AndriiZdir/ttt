@@ -16,8 +16,12 @@ public class GameFieldScript : MonoBehaviour
 
     [Header("Tiles")]
     public CubeScript fieldTilePrefab;
+    public Material[] cubeSignMaterials;
+    public Material cubeMineMaterial;
+    public Material cubeUsedMineMaterial;
+    
     private Dictionary<string, CubeScript> dictTiles;
-    private CubeScript selectedTile;
+    private CubeScript selectedTile;    
 
     [Header("UI")]
     public GameObject buttonDeselect;
@@ -28,7 +32,8 @@ public class GameFieldScript : MonoBehaviour
     public float tileMargin = 1f;
 
     void Start()
-    {
+    {                
+
         dictTiles = new Dictionary<string, CubeScript>();
 
         buttonDeselect.SetActive(false);
@@ -41,12 +46,6 @@ public class GameFieldScript : MonoBehaviour
         }
 
         GameFieldManager.Instance.StartCoroutine(UpdateGameFieldState());
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     public void OnBtnDeselect()
@@ -104,16 +103,21 @@ public class GameFieldScript : MonoBehaviour
             return;
         }
 
-        uiGameFieldPlayerList.ShowCurrentTurnPlayer(gameState.CurrentTurnPlayerId);
+        //Field Bounds
+        var gameStateBounds = Rect.MinMaxRect(gameState.MoveBounds.Left, gameState.MoveBounds.Top, gameState.MoveBounds.Right, gameState.MoveBounds.Bottom);
+        ExpandField(gameStateBounds);
 
+        //Player List
         foreach (var player in gameState.Players)
         {
-            uiGameFieldPlayerList.SetPlayerPoints(player.PlayerId, player.Points);
+            bool isCurrentTurn = (gameState.CurrentTurnPlayerId == player.PlayerId);
+            uiGameFieldPlayerList.UpdatePlayerInformation(player.PlayerId, player.Points, isCurrentTurn, player.SkipsNextTurn);
         }
 
+        //Points
         foreach (var point in gameState.Points)
         {
-                        
+            
         }
 
         lastGameState = gameState;
@@ -163,10 +167,11 @@ public class GameFieldScript : MonoBehaviour
 
     private CubeScript InsertTile(float x, float y)
     {
-        var tile = Instantiate(fieldTilePrefab, new Vector3(x + x * tileMargin, 1, y + y * tileMargin), Quaternion.identity);
+        var tile = Instantiate(fieldTilePrefab, new Vector3(x + x * tileMargin, 1, y + y * tileMargin), fieldTilePrefab.transform.rotation);
         tile.name = "tile_(" + x + ";" + y + ")";
         tile.tileCoords = new Vector2(x, y);
         tile.gameField = this;
+        tile.OnTileSelected += SelectTile;
 
         dictTiles.Add(x + ";" + y, tile);
 

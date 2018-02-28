@@ -555,7 +555,8 @@ MonoBehaviour:
   - {r: 0, g: 0.5803922, b: 1, a: 1}
   - {r: 1, g: 0.4156863, b: 0, a: 1}
   - {r: 0.6137929, g: 0, b: 1, a: 1}
-  currentTurnPlayerColor: {r: 1, g: 0.43448275, b: 0, a: 0}
+  currentTurnPlayerColor: {r: 1, g: 0.43529412, b: 0, a: 1}
+  skipTurnPlayerColor: {r: 0.84705883, g: 0.56078434, b: 0.56078434, a: 1}
   gameFieldPlayerPrefab: {fileID: 114416471046808834, guid: d231aca27a374344eae3adfee3140b30,
     type: 2}
 --- !u!1 &385798435
@@ -1033,6 +1034,15 @@ MonoBehaviour:
   gameCameraAnimator: {fileID: 512103683}
   fieldTilePrefab: {fileID: 114354993684162250, guid: 75c389a3800dcf74ca80920c555fc718,
     type: 2}
+  cubeSignMaterials:
+  - {fileID: 2100000, guid: 68ddef15705bb374d876fbb50b45a70e, type: 2}
+  - {fileID: 2100000, guid: ba7bd97a05df39740846b7b3fac0b380, type: 2}
+  - {fileID: 2100000, guid: d9655d1b474ea3547bae72c306e685f6, type: 2}
+  - {fileID: 2100000, guid: e2b980fad59cbc8489b460076216a7d3, type: 2}
+  - {fileID: 2100000, guid: c41d7870e29f4ad4d9324b4c03a9aae3, type: 2}
+  cubeMineMaterial: {fileID: 2100000, guid: 06380b1c5396fc44c93eb1ac53036f7e, type: 2}
+  cubeUsedMineMaterial: {fileID: 2100000, guid: e8f3fb99888ca7a468da71c8eb314484,
+    type: 2}
   buttonDeselect: {fileID: 666649455}
   uiGameFieldPlayerList: {fileID: 331265418}
   cameraAimTime: 1
@@ -1333,6 +1343,41 @@ Prefab:
         type: 2}
       propertyPath: m_Pivot.y
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114045606275532944, guid: d231aca27a374344eae3adfee3140b30,
+        type: 2}
+      propertyPath: m_EffectColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114045606275532944, guid: d231aca27a374344eae3adfee3140b30,
+        type: 2}
+      propertyPath: m_EffectColor.g
+      value: 0.43448272
+      objectReference: {fileID: 0}
+    - target: {fileID: 114045606275532944, guid: d231aca27a374344eae3adfee3140b30,
+        type: 2}
+      propertyPath: m_EffectColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114098153824656994, guid: d231aca27a374344eae3adfee3140b30,
+        type: 2}
+      propertyPath: m_Color.r
+      value: 0.8455882
+      objectReference: {fileID: 0}
+    - target: {fileID: 114098153824656994, guid: d231aca27a374344eae3adfee3140b30,
+        type: 2}
+      propertyPath: m_Color.g
+      value: 0.55958045
+      objectReference: {fileID: 0}
+    - target: {fileID: 114098153824656994, guid: d231aca27a374344eae3adfee3140b30,
+        type: 2}
+      propertyPath: m_Color.b
+      value: 0.55958045
+      objectReference: {fileID: 0}
+    - target: {fileID: 114045606275532944, guid: d231aca27a374344eae3adfee3140b30,
+        type: 2}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d231aca27a374344eae3adfee3140b30, type: 2}
