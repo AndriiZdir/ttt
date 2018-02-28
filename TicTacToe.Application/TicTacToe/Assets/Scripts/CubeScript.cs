@@ -21,7 +21,7 @@ public class CubeScript : MonoBehaviour
         state = CubeState.Default;
         thisMeshRenderer = GetComponent<MeshRenderer>();
 
-        thisMeshRenderer.material = gameField.cubeSignMaterials[2];
+        //thisMeshRenderer.material = gameField.cubeSignMaterials[Random.Range(0, gameField.cubeSignMaterials.Length)];
     }
 
     void OnMouseUpAsButton()

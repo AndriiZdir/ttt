@@ -8,8 +8,7 @@ using Assets.Scripts.ApiModels;
 public class GameFieldScript : MonoBehaviour
 {
     [Header("Camera")]
-    public Camera gameCamera;
-    public Animator gameCameraAnimator;
+    public CameraScript gameCamera;
         
     private GameStateModel lastGameState;
     private Rect gameBounds;
@@ -28,7 +27,6 @@ public class GameFieldScript : MonoBehaviour
     public UIGameFieldPlayerListScript uiGameFieldPlayerList;
 
     [Header("Variables")]
-    public float cameraAimTime = 1.0f;
     public float tileMargin = 1f;
 
     void Start()
@@ -40,9 +38,12 @@ public class GameFieldScript : MonoBehaviour
 
         uiGameFieldPlayerList.ClearPlayerList();
 
-        foreach (var player in GameFieldManager.Instance.gameDetails.Players)
+        if (GameFieldManager.Instance.gameDetails != null)
         {
-            uiGameFieldPlayerList.AddPlayerToList(player.PlayerId, player.Sign, player.PlayerName);
+            foreach (var player in GameFieldManager.Instance.gameDetails.Players)
+            {
+                uiGameFieldPlayerList.AddPlayerToList(player.PlayerId, player.Sign, player.PlayerName);
+            }
         }
 
         GameFieldManager.Instance.StartCoroutine(UpdateGameFieldState());
@@ -56,20 +57,25 @@ public class GameFieldScript : MonoBehaviour
     public void OnBtnTest()
     {
        GenerateTestGame();
-    }    
+    }
 
     public void SelectTile(CubeScript tile)
     {
-        StopAllCoroutines();
+        gameCamera.StopAllCoroutines();
 
         if (selectedTile == null)
-        {            
-            CameraMoveToTile(tile.transform.position.x, tile.transform.position.z);
-            CameraChangeZoom(20);            
+        {
+            gameCamera.CameraMoveToTile(tile.transform.position.x, tile.transform.position.z);
+            gameCamera.CameraChangeZoom(50);
+        }
+        else if (selectedTile == tile)
+        {
+            DeselectTile();
+            return;
         }
         else
         {
-            CameraMoveToTile(tile.transform.position.x, tile.transform.position.z, 0.5f);
+            gameCamera.CameraMoveToTile(tile.transform.position.x, tile.transform.position.z, 0.5f);
         }
 
         Debug.Log("Select new tile " + tile.tileCoords);
@@ -80,8 +86,8 @@ public class GameFieldScript : MonoBehaviour
     public void DeselectTile()
     {
         Debug.Log("Deselected..");
-        StopAllCoroutines();
-        CameraChangeZoom(60);
+        gameCamera.StopAllCoroutines();
+        gameCamera.CameraChangeZoom(90);
         selectedTile = null;
         buttonDeselect.SetActive(false);
     }
@@ -126,11 +132,17 @@ public class GameFieldScript : MonoBehaviour
 
     private void GenerateTestGame()
     {
-        gameBounds = Rect.zero;
-        dictTiles = new Dictionary<string, CubeScript>();
+        foreach (var tile in dictTiles)
+        {
+            Destroy(tile.Value.gameObject);
+        }
+
+        dictTiles.Clear();
+
+        gameBounds = Rect.zero;        
         selectedTile = null;
 
-        ExpandField(Rect.MinMaxRect(-16, -16, 16, 16));
+        ExpandField(Rect.MinMaxRect(-6, -6, 6, 6));
     }
 
     private void InitGameField(GameStateModel gameState)
@@ -185,18 +197,6 @@ public class GameFieldScript : MonoBehaviour
         dictTiles.TryGetValue(x + ";" + y, out tile);
 
         return tile;
-    }
-
-    private void CameraMoveToTile(float x, float y, float timeCoef = 1)
-    {
-        var currentCamPosition = gameCamera.transform.position;
-
-        StartCoroutine(gameCamera.gameObject.MoveOverSeconds(new Vector3(x - 16, currentCamPosition.y, y - 16), cameraAimTime * timeCoef));
-    }
-
-    private void CameraChangeZoom(float zoom)
-    {
-        StartCoroutine(gameCamera.SmoothChangeCameraFOV(zoom, cameraAimTime));
     }
 
 }
