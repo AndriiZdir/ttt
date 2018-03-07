@@ -498,6 +498,72 @@ namespace Assets.Scripts
 
             }
         }
+
+        public static IEnumerator SetPointAsync(Action<bool> callback, string gameId, int x, int y)  //api/game/point/{roomid}/{X};{Y}
+        {
+
+            using (UnityWebRequest www = UnityWebRequest.Post(GetFullUrl(string.Format("/api/game/point/{0}/{1};{2}", gameId, x, y)), string.Empty)) 
+            {
+                if (Instance.IsAuthenticated())
+                {
+                    www.SetRequestHeader(COOKIE_HEADER_NAME, Instance.PlayerInfo.AuthCookie);
+                }
+
+                yield return www.SendWebRequest();
+
+                if (www.isNetworkError || www.isHttpError)
+                {
+                    Debug.LogWarning(www.error);
+
+                    if (callback != null)
+                    {
+                        callback(false);
+                    }
+                }
+                else
+                {
+
+                    if (callback != null)
+                    {
+                        callback(true);
+                    }
+                }
+
+            }
+        }
+
+        public static IEnumerator SetMineAsync(Action<bool> callback, string gameId, int x, int y)  //api/game/mine/{roomid}/{X};{Y}
+        {
+
+            using (UnityWebRequest www = UnityWebRequest.Post(GetFullUrl(string.Format("/api/game/mine/{0}/{1};{2}", gameId, x, y)), string.Empty))
+            {
+                if (Instance.IsAuthenticated())
+                {
+                    www.SetRequestHeader(COOKIE_HEADER_NAME, Instance.PlayerInfo.AuthCookie);
+                }
+
+                yield return www.SendWebRequest();
+
+                if (www.isNetworkError || www.isHttpError)
+                {
+                    Debug.LogWarning(www.error);
+
+                    if (callback != null)
+                    {
+                        callback(false);
+                    }
+                }
+                else
+                {
+
+                    if (callback != null)
+                    {
+                        callback(true);
+                    }
+                }
+
+            }
+        }
         #endregion
 
         #region Utilities

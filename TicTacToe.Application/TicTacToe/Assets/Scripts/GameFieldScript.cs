@@ -20,7 +20,7 @@ public class GameFieldScript : MonoBehaviour
     public Material cubeMineMaterial;
     public Material cubeUsedMineMaterial;
     
-    private Dictionary<string, CubeScript> dictTiles;
+    private Dictionary<Vector2, CubeScript> dictTiles;
     private CubeScript selectedTile;    
 
     [Header("UI")]
@@ -30,10 +30,14 @@ public class GameFieldScript : MonoBehaviour
     [Header("Variables")]
     public float tileMargin = 1f;
 
+    private string currentPlayerId;
+    private string currentGameId;
+    private bool IsMyTurnToMove;
+
     void Start()
     {                
 
-        dictTiles = new Dictionary<string, CubeScript>();
+        dictTiles = new Dictionary<Vector2, CubeScript>();
 
         buttonDeselect.SetActive(false);
 
@@ -46,6 +50,9 @@ public class GameFieldScript : MonoBehaviour
                 uiGameFieldPlayerList.AddPlayerToList(player.PlayerId, player.Sign, player.PlayerName);
             }
         }
+
+        currentGameId = GameFieldManager.Instance.currentGameId;
+        currentPlayerId = ApiService.Instance.PlayerInfo.PlayerId;
 
         GameFieldManager.Instance.StartCoroutine(UpdateGameFieldState());
     }
@@ -73,8 +80,14 @@ public class GameFieldScript : MonoBehaviour
             gameCamera.CameraChangeZoom(50);
         }
         else if (selectedTile == tile)
-        {
+        {            
+            if (IsMyTurnToMove)
+            {
+                StartCoroutine(ApiService.SetPointAsync(x => { }, currentGameId, (int)tile.tileCoords.x, (int)tile.tileCoords.y));                
+            }
+
             DeselectTile();
+
             return;
         }
         else
@@ -107,9 +120,9 @@ public class GameFieldScript : MonoBehaviour
 
     IEnumerator UpdateGameFieldState()
     {
-        while (GameFieldManager.Instance.currentGameId != null)
+        while (currentGameId != null)
         {
-            yield return ApiService.GetGameStateAsync(GameStateCallback, GameFieldManager.Instance.currentGameId);
+            yield return ApiService.GetGameStateAsync(GameStateCallback, currentGameId);
         }
     }
 
@@ -132,6 +145,8 @@ public class GameFieldScript : MonoBehaviour
             uiGameFieldPlayerList.UpdatePlayerInformation(player.PlayerId, player.Points, isCurrentTurn, player.SkipsNextTurn);
         }
 
+        IsMyTurnToMove = (gameState.CurrentTurnPlayerId == currentPlayerId);
+
         //Points
         foreach (var point in gameState.Points)
         {
@@ -143,7 +158,7 @@ public class GameFieldScript : MonoBehaviour
                 continue;                
             }
 
-            //point.Type
+            tile.SetState((CubeState)point.Type, point.PlayerId);
         }
 
         //Combinations
@@ -191,9 +206,11 @@ public class GameFieldScript : MonoBehaviour
         {
             for (float y = bounds.yMin; y <= bounds.yMax; y++)
             {
-                if (!gameBounds.Contains(new Vector2(x, y)))
+                var coords = new Vector2(x, y);
+                
+                if (!dictTiles.ContainsKey(coords))
                 {
-                    InsertTile(x, y);
+                    InsertTile(coords);
                 }
             }
         }
@@ -203,24 +220,29 @@ public class GameFieldScript : MonoBehaviour
         Debug.Log("Field expanded to " + gameBounds);
     }
 
-    private CubeScript InsertTile(float x, float y)
+    private CubeScript InsertTile(Vector2 coords)
     {
-        var tile = Instantiate(fieldTilePrefab, new Vector3(x + x * tileMargin, 1, y + y * tileMargin), fieldTilePrefab.transform.rotation);
-        tile.name = "tile_(" + x + ";" + y + ")";
-        tile.tileCoords = new Vector2(x, y);
+        var tile = Instantiate(fieldTilePrefab, new Vector3(coords.x + coords.x * tileMargin, 1, coords.y + coords.y * tileMargin), fieldTilePrefab.transform.rotation);
+        tile.name = "tile_(" + coords + ")";
+        tile.tileCoords = coords;
         tile.gameField = this;
         tile.OnTileSelected += SelectTile;
 
-        dictTiles.Add(x + ";" + y, tile);
+        dictTiles.Add(coords, tile);
 
         return tile;
     }
 
     private CubeScript GetTile(float x, float y)
     {
+        return GetTile(new Vector2(x, y));
+    }
+
+    private CubeScript GetTile(Vector2 coords)
+    {
         CubeScript tile = null;
 
-        dictTiles.TryGetValue(x + ";" + y, out tile);
+        dictTiles.TryGetValue(coords, out tile);
 
         return tile;
     }
