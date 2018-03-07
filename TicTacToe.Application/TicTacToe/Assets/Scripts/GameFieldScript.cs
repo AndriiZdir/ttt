@@ -16,6 +16,7 @@ public class GameFieldScript : MonoBehaviour
     [Header("Tiles")]
     public CubeScript fieldTilePrefab;
     public Material[] cubeSignMaterials;
+    public Material cubeDefaultMaterial;
     public Material cubeMineMaterial;
     public Material cubeUsedMineMaterial;
     
@@ -49,6 +50,7 @@ public class GameFieldScript : MonoBehaviour
         GameFieldManager.Instance.StartCoroutine(UpdateGameFieldState());
     }
 
+    #region OnEvents
     public void OnBtnDeselect()
     {
         DeselectTile();
@@ -56,8 +58,10 @@ public class GameFieldScript : MonoBehaviour
 
     public void OnBtnTest()
     {
-       GenerateTestGame();
+        GenerateTestGame();
     }
+    #endregion
+    
 
     public void SelectTile(CubeScript tile)
     {
@@ -87,9 +91,17 @@ public class GameFieldScript : MonoBehaviour
     {
         Debug.Log("Deselected..");
         gameCamera.StopAllCoroutines();
-        gameCamera.CameraChangeZoom(90);
+        gameCamera.CameraChangeZoom(75);
         selectedTile = null;
         buttonDeselect.SetActive(false);
+    }
+
+
+    public byte GetSignForPlayer(string playerId)
+    {
+        var playerInfo = uiGameFieldPlayerList.dictGameFieldPlayers[playerId];
+
+        return playerInfo.playerSign;
     }
 
 
@@ -122,6 +134,20 @@ public class GameFieldScript : MonoBehaviour
 
         //Points
         foreach (var point in gameState.Points)
+        {
+            var tile = GetTile(point.X, point.Y);
+
+            if (tile == null)
+            {
+                Debug.LogWarningFormat("Tile {0};{1} is null", point.X, point.Y);
+                continue;                
+            }
+
+            //point.Type
+        }
+
+        //Combinations
+        foreach (var combination in gameState.Combinations)
         {
             
         }

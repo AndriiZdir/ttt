@@ -18,6 +18,8 @@ public class MainUIScript : MonoBehaviour
     public UIActiveGameScript activeGameItem = null;
     public UIGameDetailsScript gameDetails = null;
 
+    private AuthorizationScript authScript;
+
     private void Awake()
     {
         if (GameFieldManager.Instance == null)
@@ -29,6 +31,8 @@ public class MainUIScript : MonoBehaviour
         {
             Instantiate(staticApiService);
         }
+
+        authScript = GetComponent<AuthorizationScript>();
     }
 
     private void Start()
@@ -43,6 +47,12 @@ public class MainUIScript : MonoBehaviour
 
     public void OnGameInit()
     {
+        if (!ApiService.Instance.IsAuthenticated())
+        {
+            authScript.ShowSigInPanel();
+            return;
+        }
+
         StartCoroutine(ApiService.InitGameAsync(ShowGameDetails));
     }
 
@@ -80,7 +90,13 @@ public class MainUIScript : MonoBehaviour
     }
 
     public void ShowGameDetails(string gameId)
-    {        
+    {
+        if (!ApiService.Instance.IsAuthenticated())
+        {
+            authScript.ShowSigInPanel();
+            return;
+        }
+
         gameDetails.gameId = gameId;
         gameDetails.IsCreatedByMe = false;
         gameDetails.gameObject.SetActive(true);

@@ -35,6 +35,7 @@ public class UIGameFieldPlayerListScript : MonoBehaviour
         item.txtSign.color = playerSignsColors[sign];
         item.txtPlayerName.text = playerName;
         item.txtPoints.text = "";
+        item.playerSign = sign;
 
         dictGameFieldPlayers.Add(playerId, item);
     }

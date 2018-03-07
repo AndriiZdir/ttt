@@ -11,6 +11,6 @@ public class UIGameFieldPlayerScript : MonoBehaviour
     public Text txtPlayerName;
     public Outline txtPlayerNameOutline;
     public Text txtPoints;
-
+    public byte playerSign;
 
 }

@@ -12,29 +12,22 @@ public class AuthorizationScript : MonoBehaviour
     public Text playerName;
     public GameObject authWidget;
     public GameObject sigInPanel;
+    public UIConnectionPanelScript connectionPanel;
 
     public InputField signName;
     public InputField signPassword;
 
     private void Start()
     {
+        //connectionPanel.gameObject.SetActive(true);
+        CheckConnection();
+    }
 
-        var isAuthenticated = ApiService.Instance.ReadAuthorization();
+    public void CheckConnection()
+    {
+        connectionPanel.ShowConnecting();
 
-        if (isAuthenticated)
-        {
-            Action<AuthPlayerInfoResultModel> callback = (playerInfoResult) =>
-            {
-                UpdateAuthWidget();
-            };
-
-            StartCoroutine(ApiService.GetPlayerInfoAsync(callback));
-        }
-        else
-        {
-            UpdateAuthWidget();
-        }
-
+        StartCoroutine(ApiService.GetPlayerInfoAsync(PlayerInfoCallback));
     }
 
     public void SignIn()
@@ -100,6 +93,21 @@ public class AuthorizationScript : MonoBehaviour
             playerName.text = ApiService.Instance.PlayerInfo.PlayerName;
             ifSignedIn.gameObject.SetActive(true);
             ifNotSignedIn.gameObject.SetActive(false);
+        }
+    }
+
+    public void PlayerInfoCallback(AuthPlayerInfoResultModel result)
+    {
+        if (result != null)
+        {
+            UpdateAuthWidget();
+
+            connectionPanel.Hide();
+        }
+        else
+        {
+            connectionPanel.ShowError();
+            Debug.LogError("Error establishing connection");
         }
     }
 

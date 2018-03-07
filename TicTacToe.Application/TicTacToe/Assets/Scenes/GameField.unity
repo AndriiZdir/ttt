@@ -301,6 +301,16 @@ Prefab:
       propertyPath: m_RootOrder
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114437064900054082, guid: 5dc1b16c17585154ca40847f9ed3947d,
+        type: 2}
+      propertyPath: cameraAimTime
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 20818377492529346, guid: 5dc1b16c17585154ca40847f9ed3947d,
+        type: 2}
+      propertyPath: field of view
+      value: 75
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 5dc1b16c17585154ca40847f9ed3947d, type: 2}
   m_IsPrefabParent: 0
@@ -1036,6 +1046,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: d9655d1b474ea3547bae72c306e685f6, type: 2}
   - {fileID: 2100000, guid: e2b980fad59cbc8489b460076216a7d3, type: 2}
   - {fileID: 2100000, guid: c41d7870e29f4ad4d9324b4c03a9aae3, type: 2}
+  cubeDefaultMaterial: {fileID: 2100000, guid: d6212cc3bccfe7f4ca6fa057bfbf8597, type: 2}
   cubeMineMaterial: {fileID: 2100000, guid: 06380b1c5396fc44c93eb1ac53036f7e, type: 2}
   cubeUsedMineMaterial: {fileID: 2100000, guid: e8f3fb99888ca7a468da71c8eb314484,
     type: 2}

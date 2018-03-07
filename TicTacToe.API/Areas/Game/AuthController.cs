@@ -52,11 +52,11 @@ namespace TicTacToe.API.Areas.Game
                 var result = await _userManager.CreateAsync(user, password);                
                 if (result.Succeeded)
                 {
-                    return StatusResult(200, "Registered. Please, sign in.");
+                    return Ok("Registered. Please, sign in.");
                 }
                 else
                 {
-                    return StatusResult(400, result.Errors.FirstOrDefault()?.Description);
+                    return BadRequest(result.Errors.FirstOrDefault()?.Description);
                 }
             }
 
@@ -70,17 +70,25 @@ namespace TicTacToe.API.Areas.Game
             return Ok();
         }
 
+        [AllowAnonymous]
         [HttpGet("info")]
         public async Task<object> CurrentUserInfo()
         {
             var currentUser = await _userManager.GetUserAsync(User);
 
+            var result = new AuthCurrentUserInfoModel();
+
             if (currentUser == null)
             {
-                return StatusResult(403, "Please, sign in.");
+                result.PlayerName = "Not authenticated";
+            }
+            else
+            {
+                result.PlayerId = currentUser.Id;
+                result.PlayerName = currentUser.UserName;
             }
 
-            return EntityResult(new { PlayerName = currentUser.UserName, PlayerId = currentUser.Id });
+            return EntityResult(result);
         }
     }
 }
