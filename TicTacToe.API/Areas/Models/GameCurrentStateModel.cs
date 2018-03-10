@@ -54,7 +54,14 @@ namespace TicTacToe.API.Areas.Models
 
             model.Combinations = gameField.Combinations
                 .Where(x => x.State == CombinationState.Completed)
-                .Select(x => new GameState_Combination { PlayerId = x.Points[0].Player.Id })
+                .Select(x => new GameState_Combination
+                {
+                    PlayerId = x.Points[0].Player.Id,
+                    Direction = x.Direction,
+                    Length = x.Points.Count,
+                    X = x.Position.X,
+                    Y = x.Position.Y
+                })
                 .ToList();
 
             model.Players = gameField.Players
@@ -87,10 +94,10 @@ namespace TicTacToe.API.Areas.Models
 
         public class GameState_Combination
         {
-            public int X1 { get; set; }
-            public int Y1 { get; set; }
-            public int X2 { get; set; }
-            public int Y2 { get; set; }
+            public int X { get; set; }
+            public int Y { get; set; }
+            public CombinationDirection Direction { get; set; }
+            public int Length { get; set; }
             public string PlayerId { get; set; }
         }
 

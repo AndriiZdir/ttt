@@ -142,14 +142,22 @@ namespace TicTacToe.BL.Models
                     }
                     else //new added point is in combination
                     {
-                        foreach (var pcPoint in pCombination.Points)
-                        {
-                            //Combination merge
-                            pcPoint.AddToCombination(nCombination);
+                        //if (!nCombination.IsReadOnly)
+                        //{
+                            foreach (var pcPoint in pCombination.Points)
+                            {
+                                //Combination merge
+                                pcPoint.AddToCombination(nCombination);
 
-                            pCombination.State = CombinationState.Closed;
-                            _gameCombinations.Remove(pCombination);
-                        }
+                                pCombination.State = CombinationState.Closed;
+                                _gameCombinations.Remove(pCombination);
+                            }
+
+                            //if (nCombination.State == CombinationState.Completed)
+                            //{
+                            //    point.Player.AddPoints(1);
+                            //}
+                        //}
                     }
                 }
                 else //neighbour point is NOT in combination

@@ -14,14 +14,16 @@ public class GameFieldScript : MonoBehaviour
     private Rect gameBounds;
 
     [Header("Tiles")]
-    public CubeScript fieldTilePrefab;
+    public CubeScript fieldTilePrefab;    
     public Material[] cubeSignMaterials;
     public Material cubeDefaultMaterial;
     public Material cubeMineMaterial;
     public Material cubeUsedMineMaterial;
-    
+    public CombinationScript combinationPrefab;
+
     private Dictionary<Vector2, CubeScript> dictTiles;
-    private CubeScript selectedTile;    
+    private CubeScript selectedTile;
+    private Dictionary<Vector3, CombinationScript> dictCombinations;
 
     [Header("UI")]
     public GameObject buttonDeselect;
@@ -38,6 +40,7 @@ public class GameFieldScript : MonoBehaviour
     {                
 
         dictTiles = new Dictionary<Vector2, CubeScript>();
+        dictCombinations = new Dictionary<Vector3, CombinationScript>();
 
         buttonDeselect.SetActive(false);
 
@@ -164,7 +167,7 @@ public class GameFieldScript : MonoBehaviour
         //Combinations
         foreach (var combination in gameState.Combinations)
         {
-            
+            InsertCombination(combination.X, combination.Y, combination.Direction, combination.Length, combination.PlayerId);
         }
 
         lastGameState = gameState;
@@ -247,4 +250,19 @@ public class GameFieldScript : MonoBehaviour
         return tile;
     }
 
+    private CombinationScript InsertCombination(float x, float y, CombinationDirection direction, int length, string playerId)
+    {
+        var combination = new Vector3(x, y, (byte)direction);
+
+        if (dictCombinations.ContainsKey(combination)) { return dictCombinations[combination]; }
+
+        var obj = Instantiate(combinationPrefab);        
+        obj.name = "combination_(" + combination + ")";
+        obj.gameField = this;
+        obj.UpdatePosition(x, y, direction, length);
+
+        dictCombinations.Add(combination, obj);
+
+        return obj;
+    }
 }

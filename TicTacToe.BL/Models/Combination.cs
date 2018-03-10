@@ -24,19 +24,28 @@ namespace TicTacToe.BL.Models
 
         public List<SignPoint> Points { get; private set; }
 
+        public Point Position { get; private set; }
+
         public void AddPoint(SignPoint point)
         {
-            if (Points.Any(x => x == point)) { throw new ArgumentException("This point is already in this combination", nameof(point)); }
+            if (Points.Any(x => x == point))
+            {
+                throw new ArgumentException("This point is already in this combination", nameof(point));
+            }
 
             Points.Add(point);
 
             if (Points.Count >= _competedRowSize)
             {
                 State = CombinationState.Completed;
-                point.Player.AddPoints(1);
+
+                Position = Points.OrderByDescending(x => x.Position.X).ThenByDescending(y => y.Position.Y).First().Position;
             }
         }
 
+        /// <summary>
+        /// Returns 'True' if combination status is Completed or Closed
+        /// </summary>
         public bool IsReadOnly => (State == CombinationState.Completed || State == CombinationState.Closed);
 
     }

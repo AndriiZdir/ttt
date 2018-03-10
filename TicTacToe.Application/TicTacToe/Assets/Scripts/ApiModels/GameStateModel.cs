@@ -24,11 +24,11 @@ namespace Assets.Scripts.ApiModels
 
         public class GameState_Combination
         {
-            public int X1;
-            public int Y1;
-            public int X2;
-            public int Y2;
+            public int X;
+            public int Y;
             public string PlayerId;
+            public CombinationDirection Direction;
+            public int Length;
         }
 
         public class GameState_PlayerTable
@@ -54,5 +54,15 @@ namespace Assets.Scripts.ApiModels
         Ready,
         Started,
         Completed
+    }
+
+    public enum CombinationDirection : byte
+    {
+        Undefined,
+
+        Vertical,
+        Horizontal,
+        UpDownDiagonal,
+        DownUpDiagonal
     }
 }
