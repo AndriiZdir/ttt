@@ -167,7 +167,8 @@ public class GameFieldScript : MonoBehaviour
         //Combinations
         foreach (var combination in gameState.Combinations)
         {
-            InsertCombination(combination.X, combination.Y, combination.Direction, combination.Length, combination.PlayerId);
+            var startTile = GetTile(combination.X, combination.Y);
+            InsertCombination(startTile.transform.position.x, startTile.transform.position.z, combination.Direction, combination.Length, combination.PlayerId);
         }
 
         lastGameState = gameState;
@@ -260,6 +261,13 @@ public class GameFieldScript : MonoBehaviour
         obj.name = "combination_(" + combination + ")";
         obj.gameField = this;
         obj.UpdatePosition(x, y, direction, length);
+        
+        var playerSign = uiGameFieldPlayerList.dictGameFieldPlayers[playerId].playerSign;
+        var combColor = uiGameFieldPlayerList.playerSignsColors[playerSign];
+        combColor.r *= 0.5f;
+        combColor.g *= 0.5f;
+        combColor.b *= 0.5f;
+        obj.SetColor(combColor);
 
         dictCombinations.Add(combination, obj);
 

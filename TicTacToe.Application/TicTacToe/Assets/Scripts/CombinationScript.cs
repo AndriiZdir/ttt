@@ -10,7 +10,7 @@ public class CombinationScript : MonoBehaviour
     public Vector2 Position;
     public CombinationDirection Direction;
     public int Length;
-    public string PlayerId;
+    //public string PlayerId;
     public GameFieldScript gameField;
 
     private MeshRenderer _meshRenderer;
@@ -20,55 +20,49 @@ public class CombinationScript : MonoBehaviour
         _meshRenderer = GetComponent<MeshRenderer>();
     }
 
-    // Use this for initialization
-    void Start()
-    {
-        _meshRenderer.material.color = Color.cyan;
-    }
-
     public void UpdatePosition(float x, float y, CombinationDirection direction, int length)
     {
-        Vector3 position = new Vector3(0f, 1.1f, 0f);
-        Vector3 scale = new Vector3(1f, 0.25f, 0.25f);
+        Vector3 position = new Vector3(x, transform.position.y, y);
         Quaternion rotation;
+        Vector3 scale = transform.localScale;
 
-        float scaleStep = 1;
-        
+        scale.x = length * 2 - 1;
+
+        float offset = length - 1;
+
         switch (direction)
         {
             case CombinationDirection.Horizontal:
                 rotation = Quaternion.identity;
-                scaleStep = 4;
+                position.x -= offset;
                 break;
             case CombinationDirection.Vertical:
                 rotation = Quaternion.Euler(0, 90, 0);
-                scaleStep = 4;
-                break;
-            case CombinationDirection.UpDownDiagonal:
-                rotation = Quaternion.Euler(0, 45, 0);
-                scaleStep = 4 * SQRT2;
+                position.z -= offset;
                 break;
             case CombinationDirection.DownUpDiagonal:
+                rotation = Quaternion.Euler(0, 45, 0);
+                scale.x *= SQRT2;
+                position.x -= offset;
+                position.z += offset;
+                break;
+            case CombinationDirection.UpDownDiagonal:
                 rotation = Quaternion.Euler(0, 135, 0);
-                scaleStep = 4 * SQRT2;
+                scale.x *= SQRT2;
+                position.x -= offset;
+                position.z -= offset;
                 break;
 
             case CombinationDirection.Undefined:
             default: throw new System.NotSupportedException();
         }
 
-        if (length % 2 == 0)
-        {
-
-        }
-        else
-        {
-
-        }
-
         transform.SetPositionAndRotation(position, rotation);
         transform.localScale = scale;
     }
 
-
+    public void SetColor(Color color)
+    {
+        _meshRenderer.material.color = color;
+    }
 }
