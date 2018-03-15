@@ -19,6 +19,7 @@ public class GameFieldScript : MonoBehaviour
     public Material cubeDefaultMaterial;
     public Material cubeMineMaterial;
     public Material cubeUsedMineMaterial;
+    public SelectBoxScript tileSelectBox;
     public CombinationScript combinationPrefab;
 
     private Dictionary<Vector2, CubeScript> dictTiles;
@@ -43,6 +44,7 @@ public class GameFieldScript : MonoBehaviour
         dictCombinations = new Dictionary<Vector3, CombinationScript>();
 
         buttonDeselect.SetActive(false);
+        tileSelectBox.SetVisibility(false);
 
         uiGameFieldPlayerList.ClearPlayerList();
 
@@ -79,8 +81,13 @@ public class GameFieldScript : MonoBehaviour
 
         if (selectedTile == null)
         {
-            gameCamera.CameraMoveToTile(tile.transform.position.x, tile.transform.position.z);
-            gameCamera.CameraChangeZoom(50);
+            var currZoom = gameCamera.GetCurrentZoom();
+
+            if (currZoom > 50)
+            {
+                gameCamera.CameraMoveToTile(tile.transform.position.x, tile.transform.position.z);
+                gameCamera.CameraChangeZoom(50);
+            }
         }
         else if (selectedTile == tile)
         {            
@@ -93,23 +100,26 @@ public class GameFieldScript : MonoBehaviour
 
             return;
         }
-        else
-        {
-            gameCamera.CameraMoveToTile(tile.transform.position.x, tile.transform.position.z, 0.5f);
-        }
-
-        Debug.Log("Select new tile " + tile.tileCoords);
+        //else
+        //{
+        //    gameCamera.CameraMoveToTile(tile.transform.position.x, tile.transform.position.z, 0.5f);
+        //}
+        
         selectedTile = tile;
         buttonDeselect.SetActive(true);
+
+        tileSelectBox.SetPosition(selectedTile.transform.position.x, selectedTile.transform.position.z);
+        tileSelectBox.SetVisibility(true);
     }
 
     public void DeselectTile()
     {
         Debug.Log("Deselected..");
         gameCamera.StopAllCoroutines();
-        gameCamera.CameraChangeZoom(75);
+        //gameCamera.CameraChangeZoom(75);
         selectedTile = null;
         buttonDeselect.SetActive(false);
+        tileSelectBox.SetVisibility(false);
     }
 
 
@@ -220,13 +230,14 @@ public class GameFieldScript : MonoBehaviour
         }
 
         gameBounds = bounds;
+        gameCamera.SetCameraMoveBounds(gameBounds.xMin * 2, gameBounds.yMin * 2, gameBounds.xMax * 2, gameBounds.yMax * 2);
 
         Debug.Log("Field expanded to " + gameBounds);
     }
 
     private CubeScript InsertTile(Vector2 coords)
     {
-        var tile = Instantiate(fieldTilePrefab, new Vector3(coords.x + coords.x * tileMargin, 1, coords.y + coords.y * tileMargin), fieldTilePrefab.transform.rotation);
+        var tile = Instantiate(fieldTilePrefab, new Vector3(coords.x + coords.x * tileMargin, 0, coords.y + coords.y * tileMargin), fieldTilePrefab.transform.rotation);
         tile.name = "tile_(" + coords + ")";
         tile.tileCoords = coords;
         tile.gameField = this;

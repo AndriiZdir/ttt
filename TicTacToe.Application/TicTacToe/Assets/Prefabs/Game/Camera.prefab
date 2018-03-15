@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 20818377492529346}
   - component: {fileID: 124232308558741874}
   - component: {fileID: 81401624701519436}
+  - component: {fileID: 114776334050254386}
   - component: {fileID: 114437064900054082}
   m_Layer: 0
   m_Name: Camera
@@ -98,6 +99,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraAimTime: 1
+--- !u!114 &114776334050254386
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1073462048942778}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27394292b29275f4f8366019d46769e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PanSpeed: 0.66
+  BoundsX:
+  - 0
+  - 0
+  BoundsZ:
+  - 0
+  - 0
+  ZoomBounds:
+  - 25
+  - 85
 --- !u!124 &124232308558741874
 Behaviour:
   m_ObjectHideFlags: 1

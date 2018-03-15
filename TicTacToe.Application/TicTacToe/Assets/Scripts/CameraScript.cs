@@ -8,11 +8,13 @@ public class CameraScript : MonoBehaviour
     public float cameraAimTime = 1.0f;
 
     private Camera _camera;
+    private CameraHandler _cameraHandler;
     private Vector3 _camViewOffset;
 
     private void Awake()
     {
         _camera = GetComponent<Camera>();
+        _cameraHandler = GetComponent<CameraHandler>();
     }
 
     private void Start()
@@ -34,6 +36,11 @@ public class CameraScript : MonoBehaviour
         CameraMoveToTile(0, 0);
     }    
 
+    public float GetCurrentZoom()
+    {
+        return _camera.fieldOfView;
+    }
+
     public void CameraMoveToTile(float x, float z, float timeCoef = 1)
     {
         var moveTo = new Vector3(x, 0f, z) + _camViewOffset;
@@ -46,5 +53,11 @@ public class CameraScript : MonoBehaviour
         StartCoroutine(_camera.SmoothChangeCameraFOV(zoom, cameraAimTime * timeCoef));
     }
 
-
+    public void SetCameraMoveBounds(float x1, float y1, float x2, float y2)
+    {
+        _cameraHandler.BoundsX[0] = x1;
+        _cameraHandler.BoundsX[1] = x2;
+        _cameraHandler.BoundsZ[0] = y1;
+        _cameraHandler.BoundsZ[1] = y2;
+    }
 }
