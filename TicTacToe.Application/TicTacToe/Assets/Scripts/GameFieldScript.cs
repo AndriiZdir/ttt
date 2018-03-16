@@ -36,11 +36,31 @@ public class GameFieldScript : MonoBehaviour
 
     private string currentPlayerId;
     private string currentGameId;
-    private bool IsMyTurnToMove;
 
+    private bool _isMyTurnToMove;
+    public bool IsMyTurnToMove
+    {
+        get
+        {
+            return _isMyTurnToMove;
+        }
+
+        private set
+        {
+            if (_isMyTurnToMove != value) //if True - turn was changed
+            {
+                _isMyTurnToMove = value;
+                
+                gameFieldUI.UpdateMineButton(false, _isMyTurnToMove && mineQuantityPlacedInCurrentTurn < mineQuantityCanBePlacedInCurrentTurn && mineQuantity > 0, mineQuantity);                
+                mineQuantityPlacedInCurrentTurn = 0;
+                DeselectTile();
+            }
+        }
+    }
+
+    private int mineQuantity;
     private readonly int mineQuantityCanBePlacedInCurrentTurn = 1;
     private int mineQuantityPlacedInCurrentTurn;
-    private bool isPlacingMine;
 
     void Start()
     {
@@ -48,8 +68,10 @@ public class GameFieldScript : MonoBehaviour
         dictTiles = new Dictionary<Vector2, CubeScript>();
         dictCombinations = new Dictionary<Vector3, CombinationScript>();
 
-        buttonDeselect.SetActive(false);
-        tileSelectBox.SetVisibility(false);
+        currentGameId = GameFieldManager.Instance.currentGameId;
+        currentPlayerId = ApiService.Instance.PlayerInfo.PlayerId;
+        
+        IsMyTurnToMove = false;
 
         gameFieldUI.ClearPlayerList();
 
@@ -59,13 +81,11 @@ public class GameFieldScript : MonoBehaviour
             {
                 gameFieldUI.AddPlayerToList(player.PlayerId, player.Sign, player.PlayerName);
             }
+
+            mineQuantity = GameFieldManager.Instance.gameDetails.MinesQuantity;
         }
 
-        currentGameId = GameFieldManager.Instance.currentGameId;
-        currentPlayerId = ApiService.Instance.PlayerInfo.PlayerId;
-
-        mineQuantityPlacedInCurrentTurn = 0;
-        isPlacingMine = false;
+        DeselectTile();
 
         GameFieldManager.Instance.StartCoroutine(UpdateGameFieldState());
     }
@@ -81,67 +101,56 @@ public class GameFieldScript : MonoBehaviour
         GenerateTestGame();
     }
 
-    public void OnToggleMinePlacing()
+    public void OnPlaceMine()
     {
-        if (mineQuantityPlacedInCurrentTurn < mineQuantityCanBePlacedInCurrentTurn)
+        if (selectedTile != null && selectedTile.currentState == CubeState.Default)
         {
-            isPlacingMine = !isPlacingMine;
+            StartCoroutine(ApiService.SetMineAsync(x => { }, currentGameId, (int)selectedTile.tileCoords.x, (int)selectedTile.tileCoords.y));
+            DeselectTile();
         }
-        else
-        {
-            isPlacingMine = false;
-        }
-
-        gameFieldUI.UpdateMineButton(isPlacingMine, mineCount: 0);
     }
     #endregion
 
 
     public void SelectTile(CubeScript tile)
     {
+        if (!_isMyTurnToMove) { return; }
+
         gameCamera.StopAllCoroutines();
 
-        if (selectedTile == null)
+        if (selectedTile != tile)
         {
+            selectedTile = tile;
+            buttonDeselect.SetActive(true);
+            gameFieldUI.UpdateMineButton(true);
+
+            tileSelectBox.SetPosition(selectedTile.transform.position.x, selectedTile.transform.position.z);
+            tileSelectBox.SetVisibility(true);
+
             var currZoom = gameCamera.GetCurrentZoom();
 
             if (currZoom > 50)
             {
-                gameCamera.CameraMoveToTile(tile.transform.position.x, tile.transform.position.z);
+                gameCamera.CameraMoveToTile(selectedTile.transform.position.x, selectedTile.transform.position.z);
                 gameCamera.CameraChangeZoom(50);
             }
         }
-        else if (selectedTile == tile)
+        else
         {
-            if (IsMyTurnToMove)
-            {
-                StartCoroutine(ApiService.SetPointAsync(x => { }, currentGameId, (int)tile.tileCoords.x, (int)tile.tileCoords.y));
-            }
+            StartCoroutine(ApiService.SetPointAsync(x => { }, currentGameId, (int)tile.tileCoords.x, (int)tile.tileCoords.y));
 
             DeselectTile();
-
-            return;
         }
-        //else
-        //{
-        //    gameCamera.CameraMoveToTile(tile.transform.position.x, tile.transform.position.z, 0.5f);
-        //}
-
-        selectedTile = tile;
-        buttonDeselect.SetActive(true);
-
-        tileSelectBox.SetPosition(selectedTile.transform.position.x, selectedTile.transform.position.z);
-        tileSelectBox.SetVisibility(true);
     }
 
     public void DeselectTile()
-    {
-        Debug.Log("Deselected..");
-        gameCamera.StopAllCoroutines();
+    {        
+        //gameCamera.StopAllCoroutines();
         //gameCamera.CameraChangeZoom(75);
         selectedTile = null;
         buttonDeselect.SetActive(false);
         tileSelectBox.SetVisibility(false);
+        gameFieldUI.UpdateMineButton(false);
     }
 
 
@@ -213,13 +222,35 @@ public class GameFieldScript : MonoBehaviour
         {
             Destroy(tile.Value.gameObject);
         }
-
         dictTiles.Clear();
+
+        foreach (var comb in dictCombinations)
+        {
+            Destroy(comb.Value.gameObject);
+        }        
+        dictCombinations.Clear();
 
         gameBounds = Rect.zero;
         selectedTile = null;
 
-        ExpandField(Rect.MinMaxRect(-6, -6, 6, 6));
+        gameFieldUI.ClearPlayerList();
+        gameFieldUI.AddPlayerToList("p1", 3, "Player 1");
+        gameFieldUI.AddPlayerToList("p2", 1, "Player 2");
+
+        ExpandField(Rect.MinMaxRect(-10, -10, 10, 10));
+
+        InsertCombination(-6, 6, CombinationDirection.Horizontal, 5, "p1");
+        InsertCombination(-6, 6, CombinationDirection.Vertical, 6, "p2");
+        InsertCombination(-6, 6, CombinationDirection.UpDownDiagonal, 7, "p1");
+        InsertCombination(-6, 6, CombinationDirection.DownUpDiagonal, 8, "p2");
+
+        //dictTiles[new Vector2(-3, 3)].SetState(CubeState.Signed, "p1");
+        //dictTiles[new Vector2(-3, 4)].SetState(CubeState.Signed, "p2");
+        //dictTiles[new Vector2(-2, 3)].SetState(CubeState.Signed, "p1");
+        //dictTiles[new Vector2(-2, 4)].SetState(CubeState.Signed, "p2");
+
+        mineQuantity = 1;
+        IsMyTurnToMove = true;        
     }
 
     private void InitGameField(GameStateModel gameState)

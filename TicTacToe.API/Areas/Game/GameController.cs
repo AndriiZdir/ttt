@@ -70,7 +70,7 @@ namespace TicTacToe.API.Areas.Game
         {
             var currentUser = await _userManager.GetUserAsync(User);
 
-            var point = _gameManager.SetPoint(RoomId, currentUser.Id, x, y);
+            var point = _gameManager.SetMine(RoomId, currentUser.Id, x, y);
 
             var gameField = _gameManager[RoomId];
             var gameState = GameCurrentStateModel.FromGameField(gameField);

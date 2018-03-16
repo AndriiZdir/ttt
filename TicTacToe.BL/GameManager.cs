@@ -48,5 +48,16 @@ namespace TicTacToe.BL
 
             return signPoint;
         }
+
+        public SignPoint SetMine(Guid gameId, string playerId, int x, int y)
+        {
+            var gameField = _gameFields[gameId];
+
+            if (gameField.CurrentTurnPlayer.Id != playerId) { throw new Exception("It is not your turn to move."); }
+
+            var signPoint = gameField.SetMine(x, y);
+
+            return signPoint;
+        }
     }
 }

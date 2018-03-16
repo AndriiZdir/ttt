@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class UIGameFieldScript : MonoBehaviour
 {
     [Header("Player List")]
+    public GameObject pnlPlayerList;
     public char[] playerSigns;
     public Color[] playerSignsColors;
     public Color currentTurnPlayerColor;
@@ -28,7 +29,7 @@ public class UIGameFieldScript : MonoBehaviour
     #region Player List
     public void AddPlayerToList(string playerId, byte sign, string playerName)
     {
-        var item = Instantiate(gameFieldPlayerPrefab, this.transform);
+        var item = Instantiate(gameFieldPlayerPrefab, pnlPlayerList.transform);
         item.name = "player_" + playerId;
         item.txtSign.text = playerSigns[sign].ToString();
         item.txtSign.color = playerSignsColors[sign];
@@ -43,7 +44,7 @@ public class UIGameFieldScript : MonoBehaviour
     {
         dictGameFieldPlayers.Clear();
 
-        foreach (Transform item in transform)
+        foreach (Transform item in pnlPlayerList.transform)
         {
             Destroy(item.gameObject);
         }

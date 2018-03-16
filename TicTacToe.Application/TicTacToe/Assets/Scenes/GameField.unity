@@ -1286,7 +1286,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 821428266}
-        m_MethodName: OnToggleMinePlacing
+        m_MethodName: OnPlaceMine
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1580,6 +1580,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f15c8141b22d6b442ad727472db5a863, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pnlPlayerList: {fileID: 331265412}
   playerSigns: 58004f005a0048005900
   playerSignsColors:
   - {r: 1, g: 0, b: 0, a: 1}

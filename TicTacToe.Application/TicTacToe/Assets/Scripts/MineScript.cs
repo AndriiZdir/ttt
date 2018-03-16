@@ -13,7 +13,12 @@ public class MineScript : MonoBehaviour
         _mineObject = transform.GetChild(0).gameObject;
         _explosionEffect = transform.GetChild(1).GetComponent<ParticleSystem>();
     }
-    
+
+    private void OnMouseUpAsButton()
+    {
+        Explode();
+    }
+
     private IEnumerator Explode()
     {
         _explosionEffect.Play(true);
