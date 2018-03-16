@@ -55,9 +55,9 @@ public class CameraScript : MonoBehaviour
 
     public void SetCameraMoveBounds(float x1, float y1, float x2, float y2)
     {
-        _cameraHandler.BoundsX[0] = x1;
-        _cameraHandler.BoundsX[1] = x2;
-        _cameraHandler.BoundsZ[0] = y1;
-        _cameraHandler.BoundsZ[1] = y2;
+        _cameraHandler.BoundsX[0] = x1 + _camViewOffset.x;
+        _cameraHandler.BoundsX[1] = x2 + _camViewOffset.x;
+        _cameraHandler.BoundsZ[0] = y1 + _camViewOffset.z;
+        _cameraHandler.BoundsZ[1] = y2 + _camViewOffset.z;
     }
 }

@@ -19,7 +19,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _Base:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 046aaff88444de444918d3ce16a52a77, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -40,8 +40,8 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
+        m_Scale: {x: 1000, y: 1000}
+        m_Offset: {x: 0.5, y: 0.5}
     - _Layer:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -59,6 +59,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -86,11 +90,12 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.5019837, g: 0.5735294, b: 0.05482265, a: 1}
     - _Color_copy: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _GroundColor: {r: 0.06617647, g: 0.5468207, b: 1, a: 1}
     - _Horizon: {r: 0.6838235, g: 0.9738336, b: 1, a: 1}
     - _SkyColor: {r: 0.02553246, g: 0.03709318, b: 0.1827586, a: 1}
     - _Skyup: {r: 0, g: 0.1332658, b: 0.2647059, a: 1}
-    - _TintColor: {r: 0.4227941, g: 0.5564885, b: 0.6764706, a: 0.303}
+    - _SpecColor: {r: 1, g: 1, b: 1, a: 1}
+    - _TintColor: {r: 0, g: 0.435, b: 0.39900008, a: 1}

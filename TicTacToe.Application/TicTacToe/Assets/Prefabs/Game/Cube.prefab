@@ -107,8 +107,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 439a76aca4384094ab551c3d40e16a14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  state: 0
-  sign: 0
+  currentState: 0
+  currentSign: 0
   tileCoords: {x: 0, y: 0}
   gameField: {fileID: 0}
   playerId: 
+  mine: {fileID: 0}

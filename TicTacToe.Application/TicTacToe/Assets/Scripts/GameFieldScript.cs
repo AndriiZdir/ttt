@@ -9,18 +9,19 @@ public class GameFieldScript : MonoBehaviour
 {
     [Header("Camera")]
     public CameraScript gameCamera;
-        
+
     private GameStateModel lastGameState;
     private Rect gameBounds;
 
-    [Header("Tiles")]
-    public CubeScript fieldTilePrefab;    
+    [Header("Game Field")]
+    public CubeScript fieldTilePrefab;
     public Material[] cubeSignMaterials;
     public Material cubeDefaultMaterial;
     public Material cubeMineMaterial;
     public Material cubeUsedMineMaterial;
     public SelectBoxScript tileSelectBox;
     public CombinationScript combinationPrefab;
+    public MineScript minePrefab;
 
     private Dictionary<Vector2, CubeScript> dictTiles;
     private CubeScript selectedTile;
@@ -28,7 +29,7 @@ public class GameFieldScript : MonoBehaviour
 
     [Header("UI")]
     public GameObject buttonDeselect;
-    public UIGameFieldPlayerListScript uiGameFieldPlayerList;
+    public UIGameFieldScript gameFieldUI;
 
     [Header("Variables")]
     public float tileMargin = 1f;
@@ -37,8 +38,12 @@ public class GameFieldScript : MonoBehaviour
     private string currentGameId;
     private bool IsMyTurnToMove;
 
+    private readonly int mineQuantityCanBePlacedInCurrentTurn = 1;
+    private int mineQuantityPlacedInCurrentTurn;
+    private bool isPlacingMine;
+
     void Start()
-    {                
+    {
 
         dictTiles = new Dictionary<Vector2, CubeScript>();
         dictCombinations = new Dictionary<Vector3, CombinationScript>();
@@ -46,18 +51,21 @@ public class GameFieldScript : MonoBehaviour
         buttonDeselect.SetActive(false);
         tileSelectBox.SetVisibility(false);
 
-        uiGameFieldPlayerList.ClearPlayerList();
+        gameFieldUI.ClearPlayerList();
 
         if (GameFieldManager.Instance.gameDetails != null)
         {
             foreach (var player in GameFieldManager.Instance.gameDetails.Players)
             {
-                uiGameFieldPlayerList.AddPlayerToList(player.PlayerId, player.Sign, player.PlayerName);
+                gameFieldUI.AddPlayerToList(player.PlayerId, player.Sign, player.PlayerName);
             }
         }
 
         currentGameId = GameFieldManager.Instance.currentGameId;
         currentPlayerId = ApiService.Instance.PlayerInfo.PlayerId;
+
+        mineQuantityPlacedInCurrentTurn = 0;
+        isPlacingMine = false;
 
         GameFieldManager.Instance.StartCoroutine(UpdateGameFieldState());
     }
@@ -72,8 +80,22 @@ public class GameFieldScript : MonoBehaviour
     {
         GenerateTestGame();
     }
+
+    public void OnToggleMinePlacing()
+    {
+        if (mineQuantityPlacedInCurrentTurn < mineQuantityCanBePlacedInCurrentTurn)
+        {
+            isPlacingMine = !isPlacingMine;
+        }
+        else
+        {
+            isPlacingMine = false;
+        }
+
+        gameFieldUI.UpdateMineButton(isPlacingMine, mineCount: 0);
+    }
     #endregion
-    
+
 
     public void SelectTile(CubeScript tile)
     {
@@ -90,10 +112,10 @@ public class GameFieldScript : MonoBehaviour
             }
         }
         else if (selectedTile == tile)
-        {            
+        {
             if (IsMyTurnToMove)
             {
-                StartCoroutine(ApiService.SetPointAsync(x => { }, currentGameId, (int)tile.tileCoords.x, (int)tile.tileCoords.y));                
+                StartCoroutine(ApiService.SetPointAsync(x => { }, currentGameId, (int)tile.tileCoords.x, (int)tile.tileCoords.y));
             }
 
             DeselectTile();
@@ -104,7 +126,7 @@ public class GameFieldScript : MonoBehaviour
         //{
         //    gameCamera.CameraMoveToTile(tile.transform.position.x, tile.transform.position.z, 0.5f);
         //}
-        
+
         selectedTile = tile;
         buttonDeselect.SetActive(true);
 
@@ -125,7 +147,7 @@ public class GameFieldScript : MonoBehaviour
 
     public byte GetSignForPlayer(string playerId)
     {
-        var playerInfo = uiGameFieldPlayerList.dictGameFieldPlayers[playerId];
+        var playerInfo = gameFieldUI.dictGameFieldPlayers[playerId];
 
         return playerInfo.playerSign;
     }
@@ -155,7 +177,7 @@ public class GameFieldScript : MonoBehaviour
         foreach (var player in gameState.Players)
         {
             bool isCurrentTurn = (gameState.CurrentTurnPlayerId == player.PlayerId);
-            uiGameFieldPlayerList.UpdatePlayerInformation(player.PlayerId, player.Points, isCurrentTurn, player.SkipsNextTurn);
+            gameFieldUI.UpdatePlayerInformation(player.PlayerId, player.Points, isCurrentTurn, player.SkipsNextTurn);
         }
 
         IsMyTurnToMove = (gameState.CurrentTurnPlayerId == currentPlayerId);
@@ -168,7 +190,7 @@ public class GameFieldScript : MonoBehaviour
             if (tile == null)
             {
                 Debug.LogWarningFormat("Tile {0};{1} is null", point.X, point.Y);
-                continue;                
+                continue;
             }
 
             tile.SetState((CubeState)point.Type, point.PlayerId);
@@ -194,7 +216,7 @@ public class GameFieldScript : MonoBehaviour
 
         dictTiles.Clear();
 
-        gameBounds = Rect.zero;        
+        gameBounds = Rect.zero;
         selectedTile = null;
 
         ExpandField(Rect.MinMaxRect(-6, -6, 6, 6));
@@ -221,7 +243,7 @@ public class GameFieldScript : MonoBehaviour
             for (float y = bounds.yMin; y <= bounds.yMax; y++)
             {
                 var coords = new Vector2(x, y);
-                
+
                 if (!dictTiles.ContainsKey(coords))
                 {
                     InsertTile(coords);
@@ -235,22 +257,9 @@ public class GameFieldScript : MonoBehaviour
         Debug.Log("Field expanded to " + gameBounds);
     }
 
-    private CubeScript InsertTile(Vector2 coords)
+    private CubeScript GetTile(float x, float z)
     {
-        var tile = Instantiate(fieldTilePrefab, new Vector3(coords.x + coords.x * tileMargin, 0, coords.y + coords.y * tileMargin), fieldTilePrefab.transform.rotation);
-        tile.name = "tile_(" + coords + ")";
-        tile.tileCoords = coords;
-        tile.gameField = this;
-        tile.OnTileSelected += SelectTile;
-
-        dictTiles.Add(coords, tile);
-
-        return tile;
-    }
-
-    private CubeScript GetTile(float x, float y)
-    {
-        return GetTile(new Vector2(x, y));
+        return GetTile(new Vector2(x, z));
     }
 
     private CubeScript GetTile(Vector2 coords)
@@ -262,25 +271,47 @@ public class GameFieldScript : MonoBehaviour
         return tile;
     }
 
-    private CombinationScript InsertCombination(float x, float y, CombinationDirection direction, int length, string playerId)
+    private CubeScript InsertTile(Vector2 coords)
     {
-        var combination = new Vector3(x, y, (byte)direction);
+        var tile = Instantiate(fieldTilePrefab, new Vector3(coords.x + coords.x * tileMargin, 0, coords.y + coords.y * tileMargin), fieldTilePrefab.transform.rotation);
+        tile.name = "tile " + coords;
+        tile.tileCoords = coords;
+        tile.gameField = this;
+        tile.OnTileSelected += SelectTile;
+
+        dictTiles.Add(coords, tile);
+
+        return tile;
+    }
+
+    private CombinationScript InsertCombination(float x, float z, CombinationDirection direction, int length, string playerId)
+    {
+        var combination = new Vector3(x, (byte)direction, z);
 
         if (dictCombinations.ContainsKey(combination)) { return dictCombinations[combination]; }
 
-        var obj = Instantiate(combinationPrefab);        
-        obj.name = "combination_(" + combination + ")";
+        var obj = Instantiate(combinationPrefab);
+        obj.name = "combination " + combination;
         obj.gameField = this;
-        obj.UpdatePosition(x, y, direction, length);
-        
-        var playerSign = uiGameFieldPlayerList.dictGameFieldPlayers[playerId].playerSign;
-        var combColor = uiGameFieldPlayerList.playerSignsColors[playerSign];
+        obj.UpdatePosition(x, z, direction, length);
+
+        var playerSign = gameFieldUI.dictGameFieldPlayers[playerId].playerSign;
+        var combColor = gameFieldUI.playerSignsColors[playerSign];
         combColor.r *= 0.5f;
         combColor.g *= 0.5f;
         combColor.b *= 0.5f;
         obj.SetColor(combColor);
 
         dictCombinations.Add(combination, obj);
+
+        return obj;
+    }
+
+    public MineScript InsertMine(CubeScript tile, string playerId)
+    {
+        var obj = Instantiate(minePrefab);
+        obj.name = "mine " + tile.tileCoords;
+        obj.SetMineTile(tile, playerId == currentPlayerId);
 
         return obj;
     }

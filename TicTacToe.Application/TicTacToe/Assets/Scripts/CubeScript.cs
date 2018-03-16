@@ -11,6 +11,7 @@ public class CubeScript : MonoBehaviour
     public Vector2 tileCoords;
     public GameFieldScript gameField;
     public string playerId;
+    public MineScript mine;
 
     public event TilePressAction OnTileSelected;
 
@@ -26,14 +27,18 @@ public class CubeScript : MonoBehaviour
 
     void OnMouseUpAsButton()
     {
-        if (OnTileSelected != null)
+        bool isUnderUI = UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
+
+        if (!isUnderUI && OnTileSelected != null)
         {
             OnTileSelected(this);
-        }        
+        }
     }
 
     public void SetState(CubeState state, string playerId)
     {
+        if (currentState == state) { return; }
+
         if (state == CubeState.Default)
         {
             thisMeshRenderer.material = gameField.cubeDefaultMaterial;
@@ -44,27 +49,19 @@ public class CubeScript : MonoBehaviour
         }
         else if (state == CubeState.Mine)
         {
-            thisMeshRenderer.material = gameField.cubeMineMaterial;
+            mine = gameField.InsertMine(this, playerId);
         }
         else if (state == CubeState.MineUsed)
         {
-            thisMeshRenderer.material = gameField.cubeUsedMineMaterial;
+            mine.Expolde();
         }
         else
         {
             throw new System.NotImplementedException("[SetState] Unknown cube state " + state);
         }
+
+        currentState = state;
     }
-
-    //public void SetTileSign(byte sign)
-    //{
-
-    //}
-
-    //public void SetTileAsMine(bool blow = false)
-    //{
-
-    //}
 }
 
 public enum CubeState : byte
