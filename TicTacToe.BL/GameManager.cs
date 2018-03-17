@@ -22,7 +22,7 @@ namespace TicTacToe.BL
         }
 
 
-        public GameField StartNewGame(Guid gameId, IEnumerable<string> players, int fieldSize = 40)
+        public GameField StartNewGame(Guid gameId, IEnumerable<string> players, int fieldSize = 100)
         {
             var gameField = new GameField(gameId, fieldSize);
 

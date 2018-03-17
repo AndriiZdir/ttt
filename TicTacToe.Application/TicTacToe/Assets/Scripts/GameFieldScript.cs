@@ -106,6 +106,7 @@ public class GameFieldScript : MonoBehaviour
         if (selectedTile != null && selectedTile.currentState == CubeState.Default)
         {
             StartCoroutine(ApiService.SetMineAsync(x => { }, currentGameId, (int)selectedTile.tileCoords.x, (int)selectedTile.tileCoords.y));
+
             DeselectTile();
         }
     }
@@ -116,7 +117,7 @@ public class GameFieldScript : MonoBehaviour
     {
         if (!_isMyTurnToMove) { return; }
 
-        gameCamera.StopAllCoroutines();
+        //gameCamera.StopAllCoroutines();
 
         if (selectedTile != tile)
         {
@@ -127,13 +128,13 @@ public class GameFieldScript : MonoBehaviour
             tileSelectBox.SetPosition(selectedTile.transform.position.x, selectedTile.transform.position.z);
             tileSelectBox.SetVisibility(true);
 
-            var currZoom = gameCamera.GetCurrentZoom();
+            //var currZoom = gameCamera.GetCurrentZoom();
 
-            if (currZoom > 50)
-            {
-                gameCamera.CameraMoveToTile(selectedTile.transform.position.x, selectedTile.transform.position.z);
-                gameCamera.CameraChangeZoom(50);
-            }
+            //if (currZoom > 50)
+            //{
+            //    gameCamera.CameraMoveToTile(selectedTile.transform.position.x, selectedTile.transform.position.z);
+            //    gameCamera.CameraChangeZoom(50);
+            //}
         }
         else
         {
@@ -190,6 +191,10 @@ public class GameFieldScript : MonoBehaviour
         }
 
         IsMyTurnToMove = (gameState.CurrentTurnPlayerId == currentPlayerId);
+        if (_isMyTurnToMove)
+        {
+            mineQuantity = gameState.CurrentTurnPlayerMineQuantity;
+        }
 
         //Points
         foreach (var point in gameState.Points)

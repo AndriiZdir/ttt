@@ -81,7 +81,7 @@ namespace TicTacToe.BL.Models
 
             if (_gamePlayers.Count >= 2 && _currentTurnPlayer == null)
             {
-                UpdateNextTurnPlayer();
+                _currentTurnPlayer = _gamePlayers[0];
                 _gameState = GameFieldState.Ready;
             }
 
@@ -198,9 +198,18 @@ namespace TicTacToe.BL.Models
             }
             else if (point == null)
             {
-                point = SetPointByCoords(x, y, _currentTurnPlayer, SignPointType.MineNew);
+                if (_currentTurnPlayer.Mines > 0)
+                {
+                    point = SetPointByCoords(x, y, _currentTurnPlayer, SignPointType.MineNew);
 
-                UpdateFieldBounds(point.Position);                
+                    _currentTurnPlayer.UseMine();
+
+                    UpdateFieldBounds(point.Position);
+                }
+                else
+                {
+                    throw new Exception("Player don't has any mine!");
+                }
             }
             else
             {

@@ -12,6 +12,7 @@ namespace Assets.Scripts.ApiModels
         public IEnumerable<GameState_PlayerTable> Players;
         public GameState_GameBounds MoveBounds;
         public string CurrentTurnPlayerId;
+        public int CurrentTurnPlayerMineQuantity { get; set; }
         public GameFieldState GameState;        
 
         public class GameState_Point

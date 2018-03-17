@@ -41,6 +41,7 @@ namespace TicTacToe.API.Areas.Models
         public IEnumerable<GameState_PlayerTable> Players { get; set; }        
         public GameState_GameBounds MoveBounds { get; set; }
         public string CurrentTurnPlayerId { get; set; }
+        public int CurrentTurnPlayerMineQuantity { get; set; }
         public GameFieldState GameState { get; set; }
 
         public static GameCurrentStateModel FromGameField(GameField gameField, int skipPoints = 0, int skipCombinations = 0)
@@ -69,6 +70,7 @@ namespace TicTacToe.API.Areas.Models
                 .ToList();
 
             model.CurrentTurnPlayerId = gameField.CurrentTurnPlayer.Id;
+            model.CurrentTurnPlayerMineQuantity = gameField.CurrentTurnPlayer.Mines;
 
             var moveBounds = gameField.MoveBounds;
             model.MoveBounds = new GameState_GameBounds()
